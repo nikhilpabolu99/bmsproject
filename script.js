@@ -33,7 +33,7 @@ const fetchCities = async () => {
             searchEnabled: true, // Enable search
             itemSelectText: "", // Hide "Press to select" text
             shouldSort: false, // Keep options in their original order
-            placeholderValue: "Search for a city...", // Optional: Add placeholder text
+            placeholderValue: "Search for a city...", // Add placeholder text
         });
 
         console.log("City dropdown populated successfully!");
