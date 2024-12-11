@@ -3,25 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOT - Box Office Tracker</title>
-    <!-- Link to Choices.js CSS -->
+    <title>Movie Booking</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-    <!-- Link to external CSS file -->
-    <link href="styles.css" rel="stylesheet">
 </head>
 <body>
 
-    <div class="container">
-        <h1>City Selection</h1>
-        <label for="citySelect">Select a City:</label>
-        <select id="citySelect">
-            <option value="" disabled selected>Search for a city...</option>
-        </select>
-    </div>
+<div class="container">
+    <h1>Box Office Tracker</h1>
 
-    <!-- Link to Choices.js JS -->
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <!-- Link to external JS file -->
-    <script src="script.js"></script>
+    <!-- City Dropdown -->
+    <label for="citySelect">Select a City:</label>
+    <select id="citySelect">
+        <option value="" disabled selected>Select a city...</option>
+    </select>
+
+    <!-- Movie Dropdown -->
+    <label for="movieSelect">Select a Movie:</label>
+    <select id="movieSelect">
+        <option value="ET00386124">Lucky Bhaskar</option>
+        <option value="ET00405181">KA</option>
+        <option value="ET00417203">Amaran (Telugu)</option>
+        <option value="ET00388085">Amaran (Tamil)</option>
+        <option value="ET00357490">Kanguva (Tamil 2D)</option>
+        <option value="ET00416501">Kanguva (Tamil 3D)</option>
+        <option value="ET00416490">Kanguva (Telugu 2D)</option>
+        <option value="ET00419311">Kanguva (Telugu 3D)</option>
+        <option value="ET00403056">Matka</option>
+        <option value="ET00405685">Mechanic Rocky</option>
+        <option value="ET00356864">Pushpa (Malayalam)</option>
+        <option value="ET00356724">Pushpa (Telugu 2D)</option>
+        <option value="ET00421621">Pushpa (Telugu 3D)</option>
+        <option value="ET00421959">Pushpa (Telugu 4DX)</option>
+        <option value="ET00421711">Pushpa (Telugu IMAX)</option>
+        <option value="ET00356725">Pushpa (Hindi 2D)</option>
+        <option value="ET00421886">Pushpa (Hindi IMAX)</option>
+        <option value="ET00421397">Pushpa (Hindi 3D)</option>
+        <option value="ET00356862">Pushpa (Tamil 2D)</option>
+        <option value="ET00356865">Pushpa (Kannada 2D)</option>
+    </select>
+
+    <!-- Date Picker -->
+    <label for="datePicker">Select a Date:</label>
+    <input type="date" id="datePicker">
+
+    <!-- Fetch Button -->
+    <button id="fetchDataBtn">Get Collections</button>
+
+    <!-- Results Container -->
+    <div id="resultsContainer"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
