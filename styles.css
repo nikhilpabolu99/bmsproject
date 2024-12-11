@@ -4,7 +4,7 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 900px;
     margin: auto;
 }
 
@@ -30,10 +30,40 @@ button:hover {
     background-color: #0056b3;
 }
 
-.result-card {
-    border: 1px solid #ccc;
-    padding: 15px;
+/* Table styling */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
     margin-bottom: 20px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+}
+
+.results-table th, .results-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.results-table th {
+    background-color: #f2f2f2;
+}
+
+/* Total summary box styling */
+.total-summary {
+    margin-top: 20px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.total-summary h3 {
+    margin: 0;
+}
+
+.total-summary ul {
+    padding-left: 20px;
+}
+
+.total-summary li {
+    margin-bottom: 5px;
 }
