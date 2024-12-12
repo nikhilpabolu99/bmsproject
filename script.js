@@ -46,33 +46,7 @@ const fetchCities = async () => {
         console.error("Error fetching city data:", error);
     }
 };
-
-// Fetch and populate movies for selected city
-const fetchMovies = async () => {
-    cityCode = citySelect.value;
-    if (!cityCode) return;
-
-    const apiURL = `https://in.bookmyshow.com/api/movies-data/movies-in-region?regionCode=${cityCode}`;
-    try {
-        const response = await fetch(apiURL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-        movieSelect.innerHTML = "";
-        data.movies.forEach((movie) => {
-            const option = document.createElement("option");
-            option.value = movie.code;
-            option.textContent = movie.name;
-            movieSelect.appendChild(option);
-        });
-
-        initializeDropdown(movieSelect);
-    } catch (error) {
-        console.error("Error fetching movie data:", error);
-    }
-};
-
-citySelect.addEventListener("change", fetchMovies);
+citySelect.addEventListener('focus', fetchCities);
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
