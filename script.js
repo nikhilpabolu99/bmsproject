@@ -67,7 +67,12 @@ const fetchShowtimes = async () => {
     let allResults = "";
     let totalSummaryDetails = ""; // For storing individual movie summaries
 
-    for (const movieCode of movieCodes) {
+    //for (const movieCode of movieCodes) {
+    const movieNames = Array.from(movieSelect.selectedOptions).map(option => option.text);
+
+    for (let i = 0; i < movieCodes.length; i++) {
+        const movieCode = movieCodes[i];
+        const movieName = movieNames[i]; // Get the corresponding movie name
         let movieResults = "";
         let movieCollection = 0;
         let movieSeatsAvail = 0;
@@ -110,7 +115,7 @@ const fetchShowtimes = async () => {
                 });
             });
 
-            allResults += `<h2>Results for Movie: ${movieCode}</h2>
+            allResults += `<h2>Results for Movie: ${movieName}</h2>
                 <table class="results-table">
                     <thead>
                         <tr>
@@ -130,7 +135,7 @@ const fetchShowtimes = async () => {
                 </table>`;
 
             allResults += `<div class="movie-summary">
-                <h3>Summary for Movie: ${movieCode}</h3>
+                <h3>Summary for Movie: ${movieName}</h3>
                 <ul>
                     <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
@@ -140,7 +145,7 @@ const fetchShowtimes = async () => {
 
             // Adding individual movie summary to the total summary section
             totalSummaryDetails += `<div class="movie-summary">
-                <h4>Summary for Movie: ${movieCode}</h4>
+                <h4>Summary for Movie: ${movieName}</h4>
                 <ul>
                     <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
@@ -153,7 +158,7 @@ const fetchShowtimes = async () => {
             totalBookedTickets += movieBookedTickets;
 
         } catch (error) {
-            console.error(`Error fetching data for movie code ${movieCode}:`, error);
+            console.error(`Error fetching data for movie code ${movieName}:`, error);
         }
     }
 
