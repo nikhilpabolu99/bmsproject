@@ -13,6 +13,40 @@ let cityCode = "";
 let movieCodes = [];  // Changed to an array to handle multiple movie selections
 let formattedDate = "";
 
+// Fetch and populate cities
+const fetchCities = async () => {
+    const apiURL = "https://in.bookmyshow.com/api/explore/v1/discover/regions";
+    try {
+        const response = await fetch(apiURL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities].sort((a, b) =>
+            a.RegionName.localeCompare(b.RegionName)
+        );
+
+        citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`;
+        allCities.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city.RegionCode;
+            option.textContent = city.RegionName;
+            citySelect.appendChild(option);
+        });
+
+        new Choices(citySelect, {
+            searchEnabled: true,
+            itemSelectText: "",
+            shouldSort: false,
+        });
+    } catch (error) {
+        console.error("Error fetching city data:", error);
+    }
+};
+
+citySelect.addEventListener('focus', fetchCities);
+
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
     cityCode = citySelect.value;
