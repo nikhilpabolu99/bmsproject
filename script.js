@@ -176,6 +176,9 @@ const fetchShowtimes = async () => {
         }
     }
 
+    const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
+
+
     const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
         <ul>
