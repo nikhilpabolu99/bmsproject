@@ -99,6 +99,17 @@ const fetchShowtimes = async () => {
                             movieCollection += collection;
                             movieSeatsAvail += seatsAvail;
                             movieBookedTickets += bookedTickets;
+                            
+                            // Create a unique key for each venue and showtime combination
+                            const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
+
+                            // If the key doesn't exist, initialize it with 0 shows
+                            if (!venueShowtimeMap[showKey]) {
+                                venueShowtimeMap[showKey] = 0;
+                            }
+
+                            // Increment the count for this combination
+                            venueShowtimeMap[showKey]++;
 
                             movieResults += `<tr>
                                 <td>${venue.VenueName}</td>
@@ -115,6 +126,9 @@ const fetchShowtimes = async () => {
                 });
             });
 
+            // Calculate the total shows by counting unique venue-showtime combinations
+            const totalShows = Object.keys(venueShowtimeMap).length;
+
             allResults += `<h2>Results for Movie: ${movieName}</h2>
                 <table class="results-table">
                     <thead>
@@ -127,6 +141,7 @@ const fetchShowtimes = async () => {
                             <th>Booked Tickets</th>
                             <th>Current Price (₹)</th>
                             <th>Collection (₹)</th>
+                            <th>Total Shows</th> <!-- New column for Total Shows -->
                         </tr>
                     </thead>
                     <tbody>
@@ -140,6 +155,7 @@ const fetchShowtimes = async () => {
                     <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                     <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
+                    <li><strong>Total Shows:</strong> ${totalShows}</li> <!-- New line for Total Shows -->
                 </ul>
             </div>`;
 
@@ -150,13 +166,14 @@ const fetchShowtimes = async () => {
                     <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                     <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
+                    <li><strong>Total Shows:</strong> ${totalShows}</li>
                 </ul>
             </div>`;
 
             totalCollection += movieCollection;
             totalSeatsAvail += movieSeatsAvail;
             totalBookedTickets += movieBookedTickets;
-
+            totalallseats += totalShows;
         } catch (error) {
             console.error(`Error fetching data for movie code ${movieName}:`, error);
         }
@@ -169,6 +186,7 @@ const fetchShowtimes = async () => {
             <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
+            <li><strong>Total Shows:</strong> ${totalallseats}</li>
         </ul>
     </div>`;
 
