@@ -159,6 +159,7 @@ const fetchShowtimes = async () => {
     summaryContainer.innerHTML = summaryResults;
 
     tableContainer.style.display = "block";
+    summaryContainer.style.display = "block"; 
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
 };
