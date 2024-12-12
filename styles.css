@@ -96,6 +96,17 @@ button:hover {
 /* Show Table Button Visibility */
 #toggleTableBtn {
     display: none; /* Initially hidden */
+    margin: 10px 0;
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#toggleTableBtn:hover {
+    background-color: #0056b3;
 }
 
 /* Results Container Styling */
