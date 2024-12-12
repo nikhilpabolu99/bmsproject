@@ -8,7 +8,7 @@ const summaryContainer = document.getElementById('summaryContainer');
 const toggleTableBtn = document.getElementById('toggleTableBtn');
 
 let cityCode = "";
-let movieCodes = [];
+let movieCodes = [];  // Changed to an array to handle multiple movie selections
 let formattedDate = "";
 
 // Fetch and populate cities
@@ -45,10 +45,19 @@ const fetchCities = async () => {
 
 citySelect.addEventListener('focus', fetchCities);
 
-// Fetch showtimes and collections for multiple movies
+// Initialize Choices.js for the movie select dropdown
+const movieChoices = new Choices(movieSelect, {
+    removeItemButton: true,  // Allow removal of selected items
+    maxItemCount: 5,         // Limit the number of selections (optional)
+    searchEnabled: true,     // Enable search functionality in the dropdown
+    placeholderValue: 'Select Movies',  // Placeholder text when no movie is selected
+    itemSelectText: 'Click to select',  // Text when selecting an item
+});
+
+// Fetch showtimes and collections
 const fetchShowtimes = async () => {
     cityCode = citySelect.value;
-    movieCodes = Array.from(movieSelect.selectedOptions).map(option => option.value);
+    movieCodes = movieChoices.getValue(true); // Get selected movie values as an array
     formattedDate = datePicker.value.replace(/-/g, "");
 
     if (!cityCode || movieCodes.length === 0 || !formattedDate) {
@@ -56,15 +65,11 @@ const fetchShowtimes = async () => {
         return;
     }
 
-    let finalSummary = {
-        totalCollection: 0,
-        totalSeatsAvail: 0,
-        totalBookedTickets: 0
-    };
-
-    // Clear previous results
-    tableContainer.innerHTML = "";
-    summaryContainer.innerHTML = "";
+    // Loop over each selected movie and fetch the data
+    let allResults = '';
+    let totalCollection = 0;
+    let totalSeatsAvail = 0;
+    let totalBookedTickets = 0;
 
     for (let movieCode of movieCodes) {
         const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
@@ -76,17 +81,7 @@ const fetchShowtimes = async () => {
             }
 
             const data = await response.json();
-
-            let movieResults = `<h2>${movieSelect.selectedOptions[Array.from(movieSelect.options).indexOf(Array.from(movieSelect.selectedOptions)[movieCodes.indexOf(movieCode)])].textContent}</h2>`;
-            movieResults += `<table class="results-table"><thead><tr>
-                <th>Venue</th><th>Show Time</th><th>Category</th>
-                <th>Max Seats</th><th>Seats Available</th>
-                <th>Booked Tickets</th><th>Current Price (₹)</th><th>Collection (₹)</th>
-            </tr></thead><tbody>`;
-
-            let movieCollection = 0;
-            let movieSeatsAvail = 0;
-            let movieBookedTickets = 0;
+            allResults += `<h2>Results for Movie: ${movieCode}</h2>`; // Display movie name as heading
 
             data.ShowDetails.forEach(showDetail => {
                 showDetail.Venues.forEach(venue => {
@@ -98,63 +93,50 @@ const fetchShowtimes = async () => {
                             const currentPrice = parseFloat(category.CurPrice);
                             const collection = bookedTickets * currentPrice;
 
-                            movieCollection += collection;
-                            movieSeatsAvail += seatsAvail;
-                            movieBookedTickets += bookedTickets;
+                            totalCollection += collection;
+                            totalSeatsAvail += seatsAvail;
+                            totalBookedTickets += bookedTickets;
 
-                            movieResults += `<tr>
-                                <td>${venue.VenueName}</td>
-                                <td>${showTime.ShowTime}</td>
-                                <td>${category.PriceDesc}</td>
-                                <td>${maxSeats}</td>
-                                <td>${seatsAvail}</td>
-                                <td>${bookedTickets}</td>
-                                <td>₹${currentPrice.toFixed(2)}</td>
-                                <td>₹${collection.toFixed(2)}</td>
-                            </tr>`;
+                            allResults += `<table class="results-table">
+                                <thead><tr>
+                                    <th>Venue</th><th>Show Time</th><th>Category</th>
+                                    <th>Max Seats</th><th>Seats Available</th>
+                                    <th>Booked Tickets</th><th>Current Price (₹)</th><th>Collection (₹)</th>
+                                </tr></thead><tbody>
+                                <tr>
+                                    <td>${venue.VenueName}</td>
+                                    <td>${showTime.ShowTime}</td>
+                                    <td>${category.PriceDesc}</td>
+                                    <td>${maxSeats}</td>
+                                    <td>${seatsAvail}</td>
+                                    <td>${bookedTickets}</td>
+                                    <td>₹${currentPrice.toFixed(2)}</td>
+                                    <td>₹${collection.toFixed(2)}</td>
+                                </tr>
+                                </tbody>
+                            </table>`;
                         });
                     });
                 });
             });
-
-            movieResults += `</tbody></table>`;
-
-            const movieSummary = `
-                <div class="movie-summary">
-                    <h3>Summary for ${movieSelect.selectedOptions[Array.from(movieSelect.options).indexOf(Array.from(movieSelect.selectedOptions)[movieCodes.indexOf(movieCode)])].textContent}</h3>
-                    <ul>
-                        <li><strong>Total Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
-                        <li><strong>Total Seats Available:</strong> ${movieSeatsAvail}</li>
-                        <li><strong>Total Booked Tickets:</strong> ${movieBookedTickets}</li>
-                    </ul>
-                </div>
-            `;
-
-            tableContainer.innerHTML += movieResults;
-            summaryContainer.innerHTML += movieSummary;
-
-            finalSummary.totalCollection += movieCollection;
-            finalSummary.totalSeatsAvail += movieSeatsAvail;
-            finalSummary.totalBookedTickets += movieBookedTickets;
-
         } catch (error) {
-            console.error(`Error fetching data for movie ${movieCode}:`, error);
+            console.error("Error fetching data:", error);
         }
     }
 
-    // Final total summary
-    const finalTotalSummary = `
+    const summaryResults = `
         <div class="total-summary">
-            <h3>Final Total Summary</h3>
+            <h3>Total Summary</h3>
             <ul>
-                <li><strong>Total Collection:</strong> ₹${finalSummary.totalCollection.toFixed(2)}</li>
-                <li><strong>Total Seats Available:</strong> ${finalSummary.totalSeatsAvail}</li>
-                <li><strong>Total Booked Tickets:</strong> ${finalSummary.totalBookedTickets}</li>
+                <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
+                <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
+                <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             </ul>
         </div>
     `;
-    
-    summaryContainer.innerHTML += finalTotalSummary;
+
+    tableContainer.innerHTML = allResults;
+    summaryContainer.innerHTML = summaryResults;
 
     tableContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";  // Make the button visible
