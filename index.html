@@ -21,16 +21,6 @@
     <!-- Movie Dropdown -->
     <label for="movieSelect">Select a Movie:</label>
     <select id="movieSelect">
-        <option value="ET00386124">Lucky Bhaskar</option>
-        <option value="ET00405181">KA</option>
-        <option value="ET00417203">Amaran (Telugu)</option>
-        <option value="ET00388085">Amaran (Tamil)</option>
-        <option value="ET00357490">Kanguva (Tamil 2D)</option>
-        <option value="ET00416501">Kanguva (Tamil 3D)</option>
-        <option value="ET00416490">Kanguva (Telugu 2D)</option>
-        <option value="ET00419311">Kanguva (Telugu 3D)</option>
-        <option value="ET00403056">Matka</option>
-        <option value="ET00405685">Mechanic Rocky</option>
         <option value="ET00356864">Pushpa (Malayalam)</option>
         <option value="ET00356724">Pushpa (Telugu 2D)</option>
         <option value="ET00421621">Pushpa (Telugu 3D)</option>
@@ -51,10 +41,33 @@
     <button id="fetchDataBtn">Get Collections</button>
 
     <!-- Results Container -->
-    <div id="resultsContainer"></div>
+    <div id="resultsContainer">
+        <button id="toggleTableBtn">Minimize Table</button>
+        <div id="tableContainer" style="display: block;">
+            <!-- Table will be injected here -->
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+    const toggleTableBtn = document.getElementById('toggleTableBtn');
+    const tableContainer = document.getElementById('tableContainer');
+
+    // Function to toggle table visibility
+    const toggleTable = () => {
+        if (tableContainer.style.display === 'none') {
+            tableContainer.style.display = 'block';
+            toggleTableBtn.textContent = 'Minimize Table'; // Change button text to "Minimize"
+        } else {
+            tableContainer.style.display = 'none';
+            toggleTableBtn.textContent = 'Show Table'; // Change button text to "Show"
+        }
+    };
+
+    // Add event listener to the toggle button
+    toggleTableBtn.addEventListener('click', toggleTable);
+</script>
 <script src="script.js"></script>
 
 </body>
