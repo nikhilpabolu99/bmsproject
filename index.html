@@ -6,30 +6,6 @@
     <title>Movie Booking</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-    <style>
-        .toggle-btn {
-            margin: 10px 0;
-            cursor: pointer;
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            z-index: 10; /* Ensure the button stays above the table */
-        }
-        .toggle-btn:hover {
-            background-color: #0056b3;
-        }
-        #tableContainer {
-            display: none; /* Hidden by default */
-            margin-top: 20px; /* Add space between the button and the table */
-            z-index: 5; /* Ensure the table stays below the button */
-            position: relative;
-        }
-        #resultsContainer {
-            position: relative;
-        }
-    </style>
 </head>
 <body>
 
@@ -74,7 +50,29 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script src="script.js"></script>
+<script>
+// JavaScript to handle the button visibility and toggle functionality
+document.getElementById('fetchDataBtn').addEventListener('click', function() {
+    // Simulating the process of fetching data and showing the table
+    setTimeout(function() {
+        // Show the "Show Table" button after data is fetched
+        document.getElementById('toggleTableBtn').style.display = 'inline-block';
+    }, 1000); // Simulate a 1-second delay for fetching data
+});
+
+document.getElementById('toggleTableBtn').addEventListener('click', function() {
+    var tableContainer = document.getElementById('tableContainer');
+    if (tableContainer.style.display === 'none') {
+        // Show the table and change button text
+        tableContainer.style.display = 'block';
+        document.getElementById('toggleTableBtn').textContent = 'Hide Table';
+    } else {
+        // Hide the table and change button text
+        tableContainer.style.display = 'none';
+        document.getElementById('toggleTableBtn').textContent = 'Show Table';
+    }
+});
+</script>
 
 </body>
 </html>
