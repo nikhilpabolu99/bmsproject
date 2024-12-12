@@ -15,12 +15,19 @@
             color: white;
             border: none;
             border-radius: 5px;
+            z-index: 10; /* Ensure the button stays above the table */
         }
         .toggle-btn:hover {
             background-color: #0056b3;
         }
         #tableContainer {
             display: none; /* Hidden by default */
+            margin-top: 20px; /* Add space between the button and the table */
+            z-index: 5; /* Ensure the table stays below the button */
+            position: relative;
+        }
+        #resultsContainer {
+            position: relative;
         }
     </style>
 </head>
@@ -68,5 +75,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script src="script.js"></script>
+
 </body>
 </html>
