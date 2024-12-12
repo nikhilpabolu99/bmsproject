@@ -3,6 +3,8 @@ const movieSelect = document.getElementById('movieSelect');
 const datePicker = document.getElementById('datePicker');
 const fetchDataBtn = document.getElementById('fetchDataBtn');
 const resultsContainer = document.getElementById('resultsContainer');
+const tableContainer = document.getElementById('tableContainer');
+const toggleTableBtn = document.getElementById('toggleTableBtn');
 
 let cityCode = "";
 let movieCode = "";
@@ -70,6 +72,27 @@ const fetchShowtimes = async () => {
 
         const data = await response.json();
         let allResults = "";
+        let totalCollection = 0;
+        let totalSeatsAvail = 0;
+        let totalBookedTickets = 0;
+
+        // Generate table headers
+        allResults += `
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Venue</th>
+                        <th>Show Time</th>
+                        <th>Category</th>
+                        <th>Max Seats</th>
+                        <th>Seats Available</th>
+                        <th>Booked Tickets</th>
+                        <th>Current Price (₹)</th>
+                        <th>Collection (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
 
         data.ShowDetails.forEach(showDetail => {
             showDetail.Venues.forEach(venue => {
@@ -81,27 +104,67 @@ const fetchShowtimes = async () => {
                         const currentPrice = parseFloat(category.CurPrice);
                         const collection = bookedTickets * currentPrice;
 
-                        allResults += 
-                            `<div class="result-card">
-                                <h3>${venue.VenueName} - ${showTime.ShowTime}</h3>
-                                <p><strong>Category:</strong> ${category.PriceDesc}</p>
-                                <p><strong>Max Seats:</strong> ${maxSeats}</p>
-                                <p><strong>Seats Available:</strong> ${seatsAvail}</p>
-                                <p><strong>Booked Tickets:</strong> ${bookedTickets}</p>
-                                <p><strong>Current Price:</strong> ₹${currentPrice.toFixed(2)}</p>
-                                <p><strong>Collection:</strong> ₹${collection.toFixed(2)}</p>
-                            </div>`;
+                        // Append row to the table
+                        allResults += `
+                            <tr>
+                                <td>${venue.VenueName}</td>
+                                <td>${showTime.ShowTime}</td>
+                                <td>${category.PriceDesc}</td>
+                                <td>${maxSeats}</td>
+                                <td>${seatsAvail}</td>
+                                <td>${bookedTickets}</td>
+                                <td>₹${currentPrice.toFixed(2)}</td>
+                                <td>₹${collection.toFixed(2)}</td>
+                            </tr>
+                        `;
+
+                        // Adding to totals
+                        totalCollection += collection;
+                        totalSeatsAvail += seatsAvail;
+                        totalBookedTickets += bookedTickets;
                     });
                 });
             });
         });
 
-        resultsContainer.innerHTML = allResults;
+        // Close the table
+        allResults += `
+                </tbody>
+            </table>
+        `;
+
+        // Add summary box with totals (excluding Total Current Price)
+        allResults += `
+            <div class="total-summary">
+                <h3>Total Summary</h3>
+                <ul>
+                    <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
+                    <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
+                    <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
+                </ul>
+            </div>
+        `;
+
+        // Inject results into the table container
+        tableContainer.innerHTML = allResults;
+        tableContainer.style.display = "block"; // Ensure table is visible after fetching results
+        toggleTableBtn.textContent = "Minimize Table"; // Reset button text
     } catch (error) {
         console.error("Error fetching data:", error);
-        resultsContainer.innerHTML = '<p>Failed to fetch data. Please try again later.</p>';
+        tableContainer.innerHTML = '<p>Failed to fetch data. Please try again later.</p>';
     }
 };
 
+// Add event listener to fetch button
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 
+// Toggle table visibility logic
+toggleTableBtn.addEventListener("click", () => {
+    if (tableContainer.style.display === "none") {
+        tableContainer.style.display = "block";
+        toggleTableBtn.textContent = "Minimize Table";
+    } else {
+        tableContainer.style.display = "none";
+        toggleTableBtn.textContent = "Show Table";
+    }
+});
