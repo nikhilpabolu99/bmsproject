@@ -121,7 +121,9 @@ const fetchShowtimes = async () => {
         summaryContainer.innerHTML = summaryResults;
 
         tableContainer.style.display = "block";
-        toggleTableBtn.textContent = "Minimize Table";
+        toggleTableBtn.style.display = "inline-block";  // Make the button visible
+
+        toggleTableBtn.textContent = "Minimize Table";  // Change the button text
     } catch (error) {
         console.error("Error fetching data:", error);
     }
