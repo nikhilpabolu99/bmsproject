@@ -134,6 +134,8 @@ const fetchShowtimes = async () => {
             });
 
             const uniqueShows = Object.keys(venueShowtimeMap).length;
+            const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
+
 
             allResults += `<h2>Results for Movie: ${movieName}</h2>
                 <table class="results-table">
@@ -161,6 +163,7 @@ const fetchShowtimes = async () => {
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                     <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
                     <li><strong>Total Shows:</strong> ${uniqueShows}</li>
+                    <li><strong>Occupancy Rate:</strong> ${movieOccupancyRate}%</li>
                 </ul>
             </div>`;
 
@@ -180,6 +183,7 @@ const fetchShowtimes = async () => {
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             <li><strong>Total Shows:</strong> ${totalShows}</li>
+            <li><strong>Overall Occupancy Rate:</strong> ${totalOccupancyRate}%</li>
         </ul>
     </div>`;
 
