@@ -1,6 +1,12 @@
 // DOM Elements
 const citySelect = document.getElementById("citySelect");
 const movieSelect = document.getElementById("movieSelect");
+const movieChoices = new Choices(movieSelect, {
+    removeItemButton: true,
+    placeholder: true,
+    searchEnabled: true,
+    itemSelectText: 'Click to select',
+});
 const datePicker = document.getElementById("datePicker");
 const fetchDataBtn = document.getElementById("fetchDataBtn");
 const resultsContainer = document.getElementById("resultsContainer");
