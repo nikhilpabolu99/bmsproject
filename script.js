@@ -78,6 +78,7 @@ const fetchShowtimes = async () => {
         let movieSeatsAvail = 0;
         let movieBookedTickets = 0;
 
+        const venueShowtimeMap = {};
         const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&eventCode=${movieCode}&regionCode=${cityCode}&dateCode=${formattedDate}`;
 
         try {
