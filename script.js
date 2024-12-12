@@ -16,7 +16,6 @@ const toggleTableBtn = document.getElementById("toggleTableBtn");
 
 // Global Variables
 let cityCode = "";
-let movieCodes = []; // Array for multiple movie selections
 let formattedDate = "";
 
 // Initialize Choices.js for dropdowns
@@ -58,7 +57,15 @@ citySelect.addEventListener("focus", fetchCities);
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
     cityCode = citySelect.value;
-    movieCodes = Array.from(movieSelect.selectedOptions).map((option) => option.value);
+    // Get selected movie codes from Choices.js
+    const movieCodes = movieChoices.getValue(true);  // Array of selected movie values (codes)
+
+    // Map movie codes to their corresponding names
+    const movieNames = movieCodes.map(code => {
+        const option = Array.from(movieSelect.options).find(opt => opt.value === code);
+        return option ? option.textContent : '';
+    });
+
     formattedDate = datePicker.value.replace(/-/g, "");
 
     if (!cityCode || movieCodes.length === 0 || !formattedDate) {
@@ -73,8 +80,6 @@ const fetchShowtimes = async () => {
     let totalShows = 0;
     let allResults = "";
     let totalSummaryDetails = "";
-
-    const movieNames = Array.from(movieSelect.selectedOptions).map(option => option.text);
 
     for (let i = 0; i < movieCodes.length; i++) {
         const movieCode = movieCodes[i];
@@ -142,7 +147,6 @@ const fetchShowtimes = async () => {
             const uniqueShows = Object.keys(venueShowtimeMap).length;
             const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
 
-
             allResults += `<h2>Results for Movie: ${movieName}</h2>
                 <table class="results-table">
                     <thead>
@@ -183,7 +187,6 @@ const fetchShowtimes = async () => {
     }
 
     const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
-
 
     const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
