@@ -46,7 +46,8 @@ const fetchCities = async () => {
         console.error("Error fetching city data:", error);
     }
 };
-citySelect.addEventListener('focus', fetchCities);
+
+citySelect.addEventListener("focus", fetchCities);
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
@@ -63,51 +64,44 @@ const fetchShowtimes = async () => {
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
-    let totalallseats = 0;
+    let totalShows = 0;
     let allResults = "";
-    let totalSummaryDetails = ""; // For storing individual movie summaries
+    let totalSummaryDetails = "";
 
-    //for (const movieCode of movieCodes) {
     const movieNames = Array.from(movieSelect.selectedOptions).map(option => option.text);
 
     for (let i = 0; i < movieCodes.length; i++) {
         const movieCode = movieCodes[i];
-        const movieName = movieNames[i]; // Get the corresponding movie name
+        const movieName = movieNames[i];
         let movieResults = "";
         let movieCollection = 0;
         let movieSeatsAvail = 0;
         let movieBookedTickets = 0;
-
         const venueShowtimeMap = {};
-        const maxRetries = 5;
-        let retryCount = 0;
-        let success = false;
 
-        while (retryCount < maxRetries && !success) {
-            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
+        const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
 
-            const headers = {
-                "x-region-code": cityCode,
-                "x-subregion-code": cityCode,
-            };
+        const headers = {
+            "x-region-code": cityCode,
+            "x-subregion-code": cityCode,
+        };
 
-            try {
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: headers,
-                });
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: headers,
+            });
 
-                const data = await response.text();
+            const data = await response.text();
 
-                if (data.includes("<!DOCTYPE")) {
-                    retryCount++;
-                    console.log(`Retry ${retryCount} for city ${cityCode} due to HTML response.`);
-                    continue;
-                }
+            if (data.includes("<!DOCTYPE")) {
+                console.warn(`Invalid response for movie ${movieName}, skipping.`);
+                continue;
+            }
 
-                const jsonData = JSON.parse(data);
+            const jsonData = JSON.parse(data);
 
-                jsonData.ShowDetails.forEach((showDetail) => {
+            jsonData.ShowDetails.forEach((showDetail) => {
                 showDetail.Venues.forEach((venue) => {
                     venue.ShowTimes.forEach((showTime) => {
                         showTime.Categories.forEach((category) => {
@@ -120,17 +114,9 @@ const fetchShowtimes = async () => {
                             movieCollection += collection;
                             movieSeatsAvail += seatsAvail;
                             movieBookedTickets += bookedTickets;
-                            
-                            // Create a unique key for each venue and showtime combination
+
                             const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
-
-                            // If the key doesn't exist, initialize it with 0 shows
-                            if (!venueShowtimeMap[showKey]) {
-                                venueShowtimeMap[showKey] = 0;
-                            }
-
-                            // Increment the count for this combination
-                            venueShowtimeMap[showKey]++;
+                            venueShowtimeMap[showKey] = (venueShowtimeMap[showKey] || 0) + 1;
 
                             movieResults += `<tr>
                                 <td>${venue.VenueName}</td>
@@ -147,8 +133,7 @@ const fetchShowtimes = async () => {
                 });
             });
 
-            // Calculate the total shows by counting unique venue-showtime combinations
-            const totalShows = Object.keys(venueShowtimeMap).length;
+            const uniqueShows = Object.keys(venueShowtimeMap).length;
 
             allResults += `<h2>Results for Movie: ${movieName}</h2>
                 <table class="results-table">
@@ -162,7 +147,6 @@ const fetchShowtimes = async () => {
                             <th>Booked Tickets</th>
                             <th>Current Price (₹)</th>
                             <th>Collection (₹)</th>
-                            <th>Total Shows</th> <!-- New column for Total Shows -->
                         </tr>
                     </thead>
                     <tbody>
@@ -170,64 +154,46 @@ const fetchShowtimes = async () => {
                     </tbody>
                 </table>`;
 
-            allResults += `<div class="movie-summary">
-                <h3>Summary for Movie: ${movieName}</h3>
-                <ul>
-                    <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
-                    <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
-                    <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
-                    <li><strong>Total Shows:</strong> ${totalShows}</li> <!-- New line for Total Shows -->
-                </ul>
-            </div>`;
-
-            // Adding individual movie summary to the total summary section
             totalSummaryDetails += `<div class="movie-summary">
                 <h4>Summary for Movie: ${movieName}</h4>
                 <ul>
                     <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                     <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
-                    <li><strong>Total Shows:</strong> ${totalShows}</li>
+                    <li><strong>Total Shows:</strong> ${uniqueShows}</li>
                 </ul>
             </div>`;
 
             totalCollection += movieCollection;
             totalSeatsAvail += movieSeatsAvail;
             totalBookedTickets += movieBookedTickets;
-            totalallseats += totalShows;
+            totalShows += uniqueShows;
         } catch (error) {
-            console.error(`Error fetching data for movie code ${movieName}:`, error);
+            console.error(`Error fetching data for movie ${movieName}:`, error);
         }
     }
 
-    // Construct the total summary with individual movie summaries
     const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
         <ul>
             <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
-            <li><strong>Total Shows:</strong> ${totalallseats}</li>
+            <li><strong>Total Shows:</strong> ${totalShows}</li>
         </ul>
     </div>`;
 
-    // Add individual movie summaries to the total summary
-    const completeSummary = totalSummary + totalSummaryDetails;
-
-    // Inject results and summaries into the HTML
     tableContainer.innerHTML = allResults;
-    summaryContainer.innerHTML = completeSummary;
+    summaryContainer.innerHTML = totalSummary + totalSummaryDetails;
 
     tableContainer.style.display = "block";
-    summaryContainer.style.display = "block"; 
+    summaryContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
 };
 
-// Fetch data on click
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 
-// Toggle table visibility (but not summary visibility)
 toggleTableBtn.addEventListener("click", () => {
     if (tableContainer.style.display === "block") {
         tableContainer.style.display = "none";
