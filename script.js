@@ -1,31 +1,37 @@
 // DOM Elements
-const citySelect = document.getElementById('citySelect');
-const movieSelect = document.getElementById('movieSelect');
-const datePicker = document.getElementById('datePicker');
-const fetchDataBtn = document.getElementById('fetchDataBtn');
-const resultsContainer = document.getElementById('resultsContainer');
-const tableContainer = document.getElementById('tableContainer');
-const summaryContainer = document.getElementById('summaryContainer');
-const toggleTableBtn = document.getElementById('toggleTableBtn');
+const citySelect = document.getElementById("citySelect");
+const movieSelect = document.getElementById("movieSelect");
+const datePicker = document.getElementById("datePicker");
+const fetchDataBtn = document.getElementById("fetchDataBtn");
+const resultsContainer = document.getElementById("resultsContainer");
+const tableContainer = document.getElementById("tableContainer");
+const summaryContainer = document.getElementById("summaryContainer");
+const toggleTableBtn = document.getElementById("toggleTableBtn");
 
 // Global Variables
 let cityCode = "";
-let movieCodes = [];  // Changed to an array to handle multiple movie selections
+let movieCodes = []; // Array for multiple movie selections
 let formattedDate = "";
+
+// Initialize Choices.js for dropdowns
+const initializeDropdown = (element) => {
+    new Choices(element, {
+        searchEnabled: true,
+        itemSelectText: "",
+        shouldSort: false,
+    });
+};
 
 // Fetch and populate cities
 const fetchCities = async () => {
     const apiURL = "https://in.bookmyshow.com/api/explore/v1/discover/regions";
     try {
         const response = await fetch(apiURL);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
-        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities].sort((a, b) =>
-            a.RegionName.localeCompare(b.RegionName)
-        );
+        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
+            .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
 
         citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`;
         allCities.forEach((city) => {
@@ -35,22 +41,43 @@ const fetchCities = async () => {
             citySelect.appendChild(option);
         });
 
-        new Choices(citySelect, {
-            searchEnabled: true,
-            itemSelectText: "",
-            shouldSort: false,
-        });
+        initializeDropdown(citySelect);
     } catch (error) {
         console.error("Error fetching city data:", error);
     }
 };
 
-citySelect.addEventListener('focus', fetchCities);
+// Fetch and populate movies for selected city
+const fetchMovies = async () => {
+    cityCode = citySelect.value;
+    if (!cityCode) return;
+
+    const apiURL = `https://in.bookmyshow.com/api/movies-data/movies-in-region?regionCode=${cityCode}`;
+    try {
+        const response = await fetch(apiURL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        movieSelect.innerHTML = "";
+        data.movies.forEach((movie) => {
+            const option = document.createElement("option");
+            option.value = movie.code;
+            option.textContent = movie.name;
+            movieSelect.appendChild(option);
+        });
+
+        initializeDropdown(movieSelect);
+    } catch (error) {
+        console.error("Error fetching movie data:", error);
+    }
+};
+
+citySelect.addEventListener("change", fetchMovies);
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
     cityCode = citySelect.value;
-    movieCodes = movieSelect.value.split(","); // Assuming movie selections are comma-separated
+    movieCodes = Array.from(movieSelect.selectedOptions).map((option) => option.value);
     formattedDate = datePicker.value.replace(/-/g, "");
 
     if (!cityCode || movieCodes.length === 0 || !formattedDate) {
@@ -65,38 +92,34 @@ const fetchShowtimes = async () => {
 
     let allResults = "";
 
-    for (let movieCode of movieCodes) {
-        let movieResults = ""; // Store table rows for the current movie
+    for (const movieCode of movieCodes) {
+        let movieResults = "";
         let movieCollection = 0;
         let movieSeatsAvail = 0;
         let movieBookedTickets = 0;
 
-        const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
+        const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&eventCode=${movieCode}&regionCode=${cityCode}&dateCode=${formattedDate}`;
 
         try {
             const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
 
-            data.ShowDetails.forEach(showDetail => {
-                showDetail.Venues.forEach(venue => {
-                    venue.ShowTimes.forEach(showTime => {
-                        showTime.Categories.forEach(category => {
+            data.ShowDetails.forEach((showDetail) => {
+                showDetail.Venues.forEach((venue) => {
+                    venue.ShowTimes.forEach((showTime) => {
+                        showTime.Categories.forEach((category) => {
                             const maxSeats = parseInt(category.MaxSeats, 10);
                             const seatsAvail = parseInt(category.SeatsAvail, 10);
                             const bookedTickets = maxSeats - seatsAvail;
                             const currentPrice = parseFloat(category.CurPrice);
                             const collection = bookedTickets * currentPrice;
 
-                            // Update movie totals
                             movieCollection += collection;
                             movieSeatsAvail += seatsAvail;
                             movieBookedTickets += bookedTickets;
 
-                            // Append row for current category
                             movieResults += `<tr>
                                 <td>${venue.VenueName}</td>
                                 <td>${showTime.ShowTime}</td>
@@ -112,7 +135,6 @@ const fetchShowtimes = async () => {
                 });
             });
 
-            // Build movie-specific table
             allResults += `<h2>Results for Movie: ${movieCode}</h2>
                 <table class="results-table">
                     <thead>
@@ -132,7 +154,6 @@ const fetchShowtimes = async () => {
                     </tbody>
                 </table>`;
 
-            // Add movie summary
             allResults += `<div class="movie-summary">
                 <h3>Summary for Movie: ${movieCode}</h3>
                 <ul>
@@ -142,17 +163,15 @@ const fetchShowtimes = async () => {
                 </ul>
             </div>`;
 
-            // Update overall totals
             totalCollection += movieCollection;
             totalSeatsAvail += movieSeatsAvail;
             totalBookedTickets += movieBookedTickets;
 
         } catch (error) {
-            console.error("Error fetching data:", error);
+            console.error(`Error fetching data for movie code ${movieCode}:`, error);
         }
     }
 
-    // Add overall summary
     const summaryResults = `<div class="total-summary">
         <h3>Total Summary</h3>
         <ul>
@@ -166,11 +185,10 @@ const fetchShowtimes = async () => {
     summaryContainer.innerHTML = summaryResults;
 
     tableContainer.style.display = "block";
-    toggleTableBtn.style.display = "inline-block";  // Make the button visible
-    toggleTableBtn.textContent = "Minimize Table";  // Change the button text
+    toggleTableBtn.style.display = "inline-block";
+    toggleTableBtn.textContent = "Minimize Table";
 };
 
-// Event Listeners
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 toggleTableBtn.addEventListener("click", () => {
     if (tableContainer.style.display === "block") {
