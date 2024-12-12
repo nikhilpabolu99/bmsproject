@@ -4,6 +4,7 @@ const datePicker = document.getElementById('datePicker');
 const fetchDataBtn = document.getElementById('fetchDataBtn');
 const resultsContainer = document.getElementById('resultsContainer');
 const tableContainer = document.getElementById('tableContainer');
+const summaryContainer = document.getElementById('summaryContainer');
 const toggleTableBtn = document.getElementById('toggleTableBtn');
 
 let cityCode = "";
@@ -20,16 +21,11 @@ const fetchCities = async () => {
         }
 
         const data = await response.json();
-        const topCities = data.BookMyShow.TopCities;
-        const otherCities = data.BookMyShow.OtherCities;
-
-        // Combine and sort cities alphabetically
-        const allCities = [...topCities, ...otherCities].sort((a, b) =>
+        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities].sort((a, b) =>
             a.RegionName.localeCompare(b.RegionName)
         );
 
-        // Clear existing options and populate new options dynamically
-        citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`; // Reset
+        citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
@@ -41,14 +37,12 @@ const fetchCities = async () => {
             searchEnabled: true,
             itemSelectText: "",
             shouldSort: false,
-            placeholderValue: "Search for a city...",
         });
     } catch (error) {
         console.error("Error fetching city data:", error);
     }
 };
 
-// Trigger city fetching when city dropdown is clicked
 citySelect.addEventListener('focus', fetchCities);
 
 // Fetch showtimes and collections
@@ -71,28 +65,15 @@ const fetchShowtimes = async () => {
         }
 
         const data = await response.json();
-        let allResults = "";
+        let allResults = `<table class="results-table"><thead><tr>
+            <th>Venue</th><th>Show Time</th><th>Category</th>
+            <th>Max Seats</th><th>Seats Available</th>
+            <th>Booked Tickets</th><th>Current Price (₹)</th><th>Collection (₹)</th>
+        </tr></thead><tbody>`;
+
         let totalCollection = 0;
         let totalSeatsAvail = 0;
         let totalBookedTickets = 0;
-
-        // Generate table headers
-        allResults += `
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Venue</th>
-                        <th>Show Time</th>
-                        <th>Category</th>
-                        <th>Max Seats</th>
-                        <th>Seats Available</th>
-                        <th>Booked Tickets</th>
-                        <th>Current Price (₹)</th>
-                        <th>Collection (₹)</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
 
         data.ShowDetails.forEach(showDetail => {
             showDetail.Venues.forEach(venue => {
@@ -104,37 +85,28 @@ const fetchShowtimes = async () => {
                         const currentPrice = parseFloat(category.CurPrice);
                         const collection = bookedTickets * currentPrice;
 
-                        // Append row to the table
-                        allResults += `
-                            <tr>
-                                <td>${venue.VenueName}</td>
-                                <td>${showTime.ShowTime}</td>
-                                <td>${category.PriceDesc}</td>
-                                <td>${maxSeats}</td>
-                                <td>${seatsAvail}</td>
-                                <td>${bookedTickets}</td>
-                                <td>₹${currentPrice.toFixed(2)}</td>
-                                <td>₹${collection.toFixed(2)}</td>
-                            </tr>
-                        `;
-
-                        // Adding to totals
                         totalCollection += collection;
                         totalSeatsAvail += seatsAvail;
                         totalBookedTickets += bookedTickets;
+
+                        allResults += `<tr>
+                            <td>${venue.VenueName}</td>
+                            <td>${showTime.ShowTime}</td>
+                            <td>${category.PriceDesc}</td>
+                            <td>${maxSeats}</td>
+                            <td>${seatsAvail}</td>
+                            <td>${bookedTickets}</td>
+                            <td>₹${currentPrice.toFixed(2)}</td>
+                            <td>₹${collection.toFixed(2)}</td>
+                        </tr>`;
                     });
                 });
             });
         });
 
-        // Close the table
-        allResults += `
-                </tbody>
-            </table>
-        `;
-
-        // Add summary box with totals (excluding Total Current Price)
-        allResults += `
+        allResults += `</tbody></table>`;
+        
+        const summaryResults = `
             <div class="total-summary">
                 <h3>Total Summary</h3>
                 <ul>
@@ -145,20 +117,19 @@ const fetchShowtimes = async () => {
             </div>
         `;
 
-        // Inject results into the table container
         tableContainer.innerHTML = allResults;
-        tableContainer.style.display = "block"; // Ensure table is visible after fetching results
-        toggleTableBtn.textContent = "Minimize Table"; // Reset button text
+        summaryContainer.innerHTML = summaryResults;
+
+        tableContainer.style.display = "block";
+        toggleTableBtn.textContent = "Minimize Table";
     } catch (error) {
         console.error("Error fetching data:", error);
-        tableContainer.innerHTML = '<p>Failed to fetch data. Please try again later.</p>';
     }
 };
 
-// Add event listener to fetch button
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 
-// Toggle table visibility logic
+// Toggle table visibility
 toggleTableBtn.addEventListener("click", () => {
     if (tableContainer.style.display === "none") {
         tableContainer.style.display = "block";
