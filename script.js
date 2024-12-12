@@ -63,7 +63,7 @@ const fetchShowtimes = async () => {
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
-
+    let totalallseats = 0;
     let allResults = "";
     let totalSummaryDetails = ""; // For storing individual movie summaries
 
