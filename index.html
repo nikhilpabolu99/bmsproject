@@ -6,6 +6,23 @@
     <title>Movie Booking</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <style>
+        .toggle-btn {
+            margin: 10px 0;
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .toggle-btn:hover {
+            background-color: #0056b3;
+        }
+        #tableContainer {
+            display: none; /* Hidden by default */
+        }
+    </style>
 </head>
 <body>
 
@@ -42,33 +59,14 @@
 
     <!-- Results Container -->
     <div id="resultsContainer">
-        <button id="toggleTableBtn">Minimize Table</button>
-        <div id="tableContainer" style="display: block;">
+        <button id="toggleTableBtn" class="toggle-btn">Show Table</button>
+        <div id="tableContainer">
             <!-- Table will be injected here -->
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script>
-    const toggleTableBtn = document.getElementById('toggleTableBtn');
-    const tableContainer = document.getElementById('tableContainer');
-
-    // Function to toggle table visibility
-    const toggleTable = () => {
-        if (tableContainer.style.display === 'none') {
-            tableContainer.style.display = 'block';
-            toggleTableBtn.textContent = 'Minimize Table'; // Change button text to "Minimize"
-        } else {
-            tableContainer.style.display = 'none';
-            toggleTableBtn.textContent = 'Show Table'; // Change button text to "Show"
-        }
-    };
-
-    // Add event listener to the toggle button
-    toggleTableBtn.addEventListener('click', toggleTable);
-</script>
 <script src="script.js"></script>
-
 </body>
 </html>
