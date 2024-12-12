@@ -164,7 +164,10 @@ const fetchShowtimes = async () => {
     toggleTableBtn.textContent = "Minimize Table";
 };
 
+// Fetch data on click
 fetchDataBtn.addEventListener("click", fetchShowtimes);
+
+// Toggle table visibility (but not summary visibility)
 toggleTableBtn.addEventListener("click", () => {
     if (tableContainer.style.display === "block") {
         tableContainer.style.display = "none";
