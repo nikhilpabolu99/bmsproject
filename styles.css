@@ -67,3 +67,36 @@ button:hover {
 .total-summary li {
     margin-bottom: 5px;
 }
+
+/* New Styles for Toggle Button */
+.toggle-btn {
+    margin: 10px 0;
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.toggle-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table Container Styling */
+#tableContainer {
+    display: none; /* Hidden by default */
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+/* Show Table Button Visibility */
+#toggleTableBtn {
+    display: none; /* Initially hidden */
+}
+
+/* Results Container Styling */
+#resultsContainer {
+    margin-top: 20px;
+}
