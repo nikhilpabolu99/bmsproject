@@ -65,6 +65,7 @@ const fetchShowtimes = async () => {
     let totalBookedTickets = 0;
 
     let allResults = "";
+    let totalSummaryDetails = ""; // For storing individual movie summaries
 
     for (const movieCode of movieCodes) {
         let movieResults = "";
@@ -137,6 +138,16 @@ const fetchShowtimes = async () => {
                 </ul>
             </div>`;
 
+            // Adding individual movie summary to the total summary section
+            totalSummaryDetails += `<div class="movie-summary">
+                <h4>Summary for Movie: ${movieCode}</h4>
+                <ul>
+                    <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
+                    <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
+                    <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
+                </ul>
+            </div>`;
+
             totalCollection += movieCollection;
             totalSeatsAvail += movieSeatsAvail;
             totalBookedTickets += movieBookedTickets;
@@ -146,7 +157,8 @@ const fetchShowtimes = async () => {
         }
     }
 
-    const summaryResults = `<div class="total-summary">
+    // Construct the total summary with individual movie summaries
+    const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
         <ul>
             <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
@@ -155,8 +167,12 @@ const fetchShowtimes = async () => {
         </ul>
     </div>`;
 
+    // Add individual movie summaries to the total summary
+    const completeSummary = totalSummary + totalSummaryDetails;
+
+    // Inject results and summaries into the HTML
     tableContainer.innerHTML = allResults;
-    summaryContainer.innerHTML = summaryResults;
+    summaryContainer.innerHTML = completeSummary;
 
     tableContainer.style.display = "block";
     summaryContainer.style.display = "block"; 
