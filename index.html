@@ -46,33 +46,14 @@
         <div id="tableContainer">
             <!-- Table will be injected here -->
         </div>
+        <div id="summaryContainer">
+            <!-- Summary will be injected here -->
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script>
-// JavaScript to handle the button visibility and toggle functionality
-document.getElementById('fetchDataBtn').addEventListener('click', function() {
-    // Simulating the process of fetching data and showing the table
-    setTimeout(function() {
-        // Show the "Show Table" button after data is fetched
-        document.getElementById('toggleTableBtn').style.display = 'inline-block';
-    }, 1000); // Simulate a 1-second delay for fetching data
-});
-
-document.getElementById('toggleTableBtn').addEventListener('click', function() {
-    var tableContainer = document.getElementById('tableContainer');
-    if (tableContainer.style.display === 'none') {
-        // Show the table and change button text
-        tableContainer.style.display = 'block';
-        document.getElementById('toggleTableBtn').textContent = 'Hide Table';
-    } else {
-        // Hide the table and change button text
-        tableContainer.style.display = 'none';
-        document.getElementById('toggleTableBtn').textContent = 'Show Table';
-    }
-});
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
