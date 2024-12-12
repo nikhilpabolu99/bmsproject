@@ -1,6 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
+    background-color: #f4f7fa; /* Background color for better contrast */
 }
 
 .container {
@@ -14,6 +15,7 @@ select, input[type="date"] {
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    background-color: #fff;
 }
 
 button {
@@ -48,6 +50,35 @@ button:hover {
     background-color: #f2f2f2;
 }
 
+/* Heading for each movie */
+h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Movie Summary Section */
+.movie-summary {
+    background-color: #e9f7fe;
+    padding: 15px;
+    border: 1px solid #d0eaf7;
+    margin-bottom: 20px;
+}
+
+.movie-summary h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.movie-summary ul {
+    padding-left: 20px;
+}
+
+.movie-summary li {
+    margin-bottom: 5px;
+}
+
 /* Total summary box styling */
 .total-summary {
     margin-top: 20px;
@@ -66,4 +97,64 @@ button:hover {
 
 .total-summary li {
     margin-bottom: 5px;
+}
+
+/* New Styles for Toggle Button */
+.toggle-btn {
+    margin: 10px 0;
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.toggle-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table Container Styling */
+#tableContainer {
+    display: none; /* Hidden by default */
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+/* Show Table Button Visibility */
+#toggleTableBtn {
+    display: none; /* Initially hidden */
+    margin: 10px 0;
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#toggleTableBtn:hover {
+    background-color: #0056b3;
+}
+
+/* Results Container Styling */
+#resultsContainer {
+    margin-top: 20px;
+}
+
+/* Add responsive adjustments */
+@media screen and (max-width: 768px) {
+    .results-table th, .results-table td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .movie-summary {
+        padding: 10px;
+    }
+
+    .total-summary {
+        padding: 10px;
+    }
 }
