@@ -5,7 +5,7 @@ const movieChoices = new Choices(movieSelect, {
     removeItemButton: true,
     placeholder: true,
     searchEnabled: true,
-    itemSelectText: 'Click to select',
+    itemSelectText: "Click to select",
 });
 const datePicker = document.getElementById("datePicker");
 const fetchDataBtn = document.getElementById("fetchDataBtn");
@@ -34,10 +34,10 @@ const fetchCities = async () => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
-        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
-            .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
+        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities].sort((a, b) =>
+            a.RegionName.localeCompare(b.RegionName)
+        );
 
-        //citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
@@ -55,13 +55,12 @@ citySelect.addEventListener("focus", fetchCities);
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
-    // Get selected cities and movie codes
-    const cityCodes = Array.from(citySelect.selectedOptions).map(opt => opt.value);
-    const cityNames = Array.from(citySelect.selectedOptions).map(opt => opt.textContent);
+    const cityCodes = Array.from(citySelect.selectedOptions).map((opt) => opt.value);
+    const cityNames = Array.from(citySelect.selectedOptions).map((opt) => opt.textContent);
     const movieCodes = movieChoices.getValue(true);
-    const movieNames = movieCodes.map(code => {
-        const option = Array.from(movieSelect.options).find(opt => opt.value === code);
-        return option ? option.textContent : '';
+    const movieNames = movieCodes.map((code) => {
+        const option = Array.from(movieSelect.options).find((opt) => opt.value === code);
+        return option ? option.textContent : "";
     });
 
     formattedDate = datePicker.value.replace(/-/g, "");
@@ -71,26 +70,24 @@ const fetchShowtimes = async () => {
         return;
     }
 
-    // Variables for overall totals
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
     let totalShows = 0;
     let allResults = "";
     let totalSummaryDetails = "";
+    let summaryTableRows = "";
 
     for (const [cityIndex, cityCode] of cityCodes.entries()) {
         const cityName = cityNames[cityIndex];
         for (let i = 0; i < movieCodes.length; i++) {
             const movieCode = movieCodes[i];
             const movieName = movieNames[i];
-            let movieResults = "";
             let movieCollection = 0;
             let movieSeatsAvail = 0;
             let movieBookedTickets = 0;
-            const venueShowtimeMap = {};
 
-            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
+            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?...`;
 
             const headers = {
                 "x-region-code": cityCode,
@@ -98,11 +95,7 @@ const fetchShowtimes = async () => {
             };
 
             try {
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: headers,
-                });
-
+                const response = await fetch(url, { method: "GET", headers });
                 const data = await response.text();
 
                 if (data.includes("<!DOCTYPE")) {
@@ -125,46 +118,12 @@ const fetchShowtimes = async () => {
                                 movieCollection += collection;
                                 movieSeatsAvail += seatsAvail;
                                 movieBookedTickets += bookedTickets;
-
-                                const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
-                                venueShowtimeMap[showKey] = (venueShowtimeMap[showKey] || 0) + 1;
-
-                                movieResults += `<tr>
-                                    <td>${venue.VenueName}</td>
-                                    <td>${showTime.ShowTime}</td>
-                                    <td>${category.PriceDesc}</td>
-                                    <td>${maxSeats}</td>
-                                    <td>${seatsAvail}</td>
-                                    <td>${bookedTickets}</td>
-                                    <td>₹${currentPrice.toFixed(2)}</td>
-                                    <td>₹${collection.toFixed(2)}</td>
-                                </tr>`;
                             });
                         });
                     });
                 });
 
-                const uniqueShows = Object.keys(venueShowtimeMap).length;
                 const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
-
-                allResults += `<h2>Results for Movie: ${movieName} in City: ${cityName}</h2>
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Venue</th>
-                                <th>Show Time</th>
-                                <th>Category</th>
-                                <th>Max Seats</th>
-                                <th>Seats Available</th>
-                                <th>Booked Tickets</th>
-                                <th>Current Price (₹)</th>
-                                <th>Collection (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${movieResults}
-                        </tbody>
-                    </table>`;
 
                 totalSummaryDetails += `<div class="movie-summary">
                     <h4>Summary for Movie: ${movieName} in City: ${cityName}</h4>
@@ -172,15 +131,22 @@ const fetchShowtimes = async () => {
                         <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                         <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                         <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
-                        <li><strong>Total Shows:</strong> ${uniqueShows}</li>
                         <li><strong>Occupancy Rate:</strong> ${movieOccupancyRate}%</li>
                     </ul>
                 </div>`;
 
+                summaryTableRows += `<tr>
+                    <td>${movieName}</td>
+                    <td>${cityName}</td>
+                    <td>₹${movieCollection.toFixed(2)}</td>
+                    <td>${movieSeatsAvail}</td>
+                    <td>${movieBookedTickets}</td>
+                    <td>${movieOccupancyRate}%</td>
+                </tr>`;
+
                 totalCollection += movieCollection;
                 totalSeatsAvail += movieSeatsAvail;
                 totalBookedTickets += movieBookedTickets;
-                totalShows += uniqueShows;
             } catch (error) {
                 console.error(`Error fetching data for movie ${movieName} in city ${cityName}:`, error);
             }
@@ -195,13 +161,29 @@ const fetchShowtimes = async () => {
             <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
-            <li><strong>Total Shows:</strong> ${totalShows}</li>
             <li><strong>Overall Occupancy Rate:</strong> ${totalOccupancyRate}%</li>
         </ul>
     </div>`;
 
+    const summaryTable = `<h3>Detailed Summary Table</h3>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Movie</th>
+                    <th>City</th>
+                    <th>Collection (₹)</th>
+                    <th>Seats Available</th>
+                    <th>Booked Tickets</th>
+                    <th>Occupancy Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${summaryTableRows}
+            </tbody>
+        </table>`;
+
     tableContainer.innerHTML = allResults;
-    summaryContainer.innerHTML = totalSummary + totalSummaryDetails;
+    summaryContainer.innerHTML = totalSummary + totalSummaryDetails + summaryTable;
 
     tableContainer.style.display = "block";
     summaryContainer.style.display = "block";
