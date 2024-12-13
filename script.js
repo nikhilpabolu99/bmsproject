@@ -57,10 +57,7 @@ citySelect.addEventListener("focus", fetchCities);
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
     cityCode = citySelect.value;
-    // Get selected movie codes from Choices.js
     const movieCodes = movieChoices.getValue(true);  // Array of selected movie values (codes)
-
-    // Map movie codes to their corresponding names
     const movieNames = movieCodes.map(code => {
         const option = Array.from(movieSelect.options).find(opt => opt.value === code);
         return option ? option.textContent : '';
@@ -73,7 +70,6 @@ const fetchShowtimes = async () => {
         return;
     }
 
-    // Variables for overall totals
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
@@ -91,18 +87,10 @@ const fetchShowtimes = async () => {
         const venueShowtimeMap = {};
 
         const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
-
-        const headers = {
-            "x-region-code": cityCode,
-            "x-subregion-code": cityCode,
-        };
+        const headers = { "x-region-code": cityCode, "x-subregion-code": cityCode };
 
         try {
-            const response = await fetch(url, {
-                method: "GET",
-                headers: headers,
-            });
-
+            const response = await fetch(url, { method: "GET", headers: headers });
             const data = await response.text();
 
             if (data.includes("<!DOCTYPE")) {
@@ -136,8 +124,9 @@ const fetchShowtimes = async () => {
                                 <td>${maxSeats}</td>
                                 <td>${seatsAvail}</td>
                                 <td>${bookedTickets}</td>
-                                <td>₹${currentPrice.toFixed(2)}</td>
-                                <td>₹${collection.toFixed(2)}</td>
+                                <td>â‚¹${currentPrice.toFixed(2)}</td>
+                                <td>â‚¹${collection.toFixed(2)}</td>
+                                <td>${movieName}</td>
                             </tr>`;
                         });
                     });
@@ -157,8 +146,9 @@ const fetchShowtimes = async () => {
                             <th>Max Seats</th>
                             <th>Seats Available</th>
                             <th>Booked Tickets</th>
-                            <th>Current Price (₹)</th>
-                            <th>Collection (₹)</th>
+                            <th>Current Price (â‚¹)</th>
+                            <th>Collection (â‚¹)</th>
+                            <th>Movie Name</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -169,7 +159,7 @@ const fetchShowtimes = async () => {
             totalSummaryDetails += `<div class="movie-summary">
                 <h4>Summary for Movie: ${movieName}</h4>
                 <ul>
-                    <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
+                    <li><strong>Movie Collection:</strong> â‚¹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                     <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
                     <li><strong>Total Shows:</strong> ${uniqueShows}</li>
@@ -191,7 +181,7 @@ const fetchShowtimes = async () => {
     const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
         <ul>
-            <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
+            <li><strong>Total Collection:</strong> â‚¹${totalCollection.toFixed(2)}</li>
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             <li><strong>Total Shows:</strong> ${totalShows}</li>
@@ -206,6 +196,57 @@ const fetchShowtimes = async () => {
     summaryContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
+
+    // Add time filter buttons
+    const timeFilterBtns = `
+        <div class="time-filters">
+            <button class="filter-btn" onclick="filterShows('1am-5am')">EMS (1am - 5am)</button>
+            <button class="filter-btn" onclick="filterShows('6am-7am')">6am Shows</button>
+            <button class="filter-btn" onclick="filterShows('noon')">Noon Shows</button>
+            <button class="filter-btn" onclick="filterShows('matinee')">Matinee Shows</button>
+            <button class="filter-btn" onclick="filterShows('1show')">1 Show (4pm - 7:59pm)</button>
+            <button class="filter-btn" onclick="filterShows('2ndshow')">2nd Show (8pm - 11:59pm)</button>
+        </div>
+    `;
+    tableContainer.insertAdjacentHTML('beforeend', timeFilterBtns);
+};
+
+// Showtime filtering function
+const filterShows = (filterType) => {
+    const rows = document.querySelectorAll('.results-table tbody tr');
+    rows.forEach((row) => {
+        const showTimeCell = row.cells[1].textContent;
+        const filteredRow = row;
+
+        if (filterType === '1am-5am' && isInTimeRange(showTimeCell, '01:00', '05:00')) {
+            filteredRow.style.display = '';
+        } else if (filterType === '6am-7am' && isInTimeRange(showTimeCell, '06:00', '07:59')) {
+            filteredRow.style.display = '';
+        } else if (filterType === 'noon' && isInTimeRange(showTimeCell, '10:00', '11:59')) {
+            filteredRow.style.display = '';
+        } else if (filterType === 'matinee' && isInTimeRange(showTimeCell, '12:00', '15:59')) {
+            filteredRow.style.display = '';
+        } else if (filterType === '1show' && isInTimeRange(showTimeCell, '16:00', '19:59')) {
+            filteredRow.style.display = '';
+        } else if (filterType === '2ndshow' && isInTimeRange(showTimeCell, '20:00', '23:59')) {
+            filteredRow.style.display = '';
+        } else {
+            filteredRow.style.display = 'none';
+        }
+    });
+};
+
+// Utility function to check if a time is within the given range
+const isInTimeRange = (time, start, end) => {
+    const timeParts = time.split(':');
+    const startParts = start.split(':');
+    const endParts = end.split(':');
+
+    const timeMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+    const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+    const endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+
+    return timeMinutes >= startMinutes && timeMinutes <= endMinutes;
 };
 
 fetchDataBtn.addEventListener("click", fetchShowtimes);
