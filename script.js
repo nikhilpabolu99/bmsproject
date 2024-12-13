@@ -215,26 +215,49 @@ const fetchShowtimes = async () => {
 const filterShows = (filterType) => {
     const rows = document.querySelectorAll('.results-table tbody tr');
     rows.forEach((row) => {
-        const showTimeCell = row.cells[1].textContent;
+        const showTimeCell = row.cells[1].textContent.trim().toLowerCase(); // normalize time format
         const filteredRow = row;
 
-        if (filterType === '1am-5am' && isInTimeRange(showTimeCell, '01:00', '05:00')) {
+        // Function to parse time string like '2am' or '2pm'
+        const parseTime = (timeStr) => {
+            const timeMatch = timeStr.match(/(\d{1,2})(am|pm)/);
+            if (timeMatch) {
+                let [_, hour, period] = timeMatch;
+                hour = parseInt(hour, 10);
+                if (period === 'pm' && hour !== 12) {
+                    hour += 12; // Convert PM times to 24-hour format
+                } else if (period === 'am' && hour === 12) {
+                    hour = 0; // Convert 12am to 00:00 in 24-hour format
+                }
+                return hour;
+            }
+            return null; // Return null if format doesn't match
+        };
+
+        const showHour = parseTime(showTimeCell);
+        if (showHour === null) {
+            filteredRow.style.display = 'none'; // invalid time format, hide row
+            return;
+        }
+
+        if (filterType === '1am-5am' && showHour >= 1 && showHour <= 5) {
             filteredRow.style.display = '';
-        } else if (filterType === '6am-7am' && isInTimeRange(showTimeCell, '06:00', '07:59')) {
+        } else if (filterType === '6am-7am' && showHour >= 6 && showHour <= 7) {
             filteredRow.style.display = '';
-        } else if (filterType === 'noon' && isInTimeRange(showTimeCell, '10:00', '11:59')) {
+        } else if (filterType === 'noon' && showHour >= 10 && showHour <= 11) {
             filteredRow.style.display = '';
-        } else if (filterType === 'matinee' && isInTimeRange(showTimeCell, '12:00', '15:59')) {
+        } else if (filterType === 'matinee' && showHour >= 12 && showHour <= 15) {
             filteredRow.style.display = '';
-        } else if (filterType === '1show' && isInTimeRange(showTimeCell, '16:00', '19:59')) {
+        } else if (filterType === '1show' && showHour >= 16 && showHour <= 19) {
             filteredRow.style.display = '';
-        } else if (filterType === '2ndshow' && isInTimeRange(showTimeCell, '20:00', '23:59')) {
+        } else if (filterType === '2ndshow' && showHour >= 20 && showHour <= 23) {
             filteredRow.style.display = '';
         } else {
             filteredRow.style.display = 'none';
         }
     });
 };
+
 
 // Utility function to check if a time is within the given range
 const isInTimeRange = (time, start, end) => {
