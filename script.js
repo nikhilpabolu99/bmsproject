@@ -87,8 +87,8 @@ const fetchShowtimes = async () => {
             let movieSeatsAvail = 0;
             let movieBookedTickets = 0;
 
-            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?...`;
-
+            //const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?...`;
+            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
             const headers = {
                 "x-region-code": cityCode,
                 "x-subregion-code": cityCode,
