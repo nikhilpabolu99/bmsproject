@@ -252,11 +252,11 @@ const isInTimeRange = (time, start, end) => {
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 
 toggleTableBtn.addEventListener("click", () => {
-    if (tableContainer.style.display === "block") {
-        tableContainer.style.display = "none";
-        toggleTableBtn.textContent = "Show Table";
-    } else {
+    if (tableContainer.style.display === "none") {
         tableContainer.style.display = "block";
         toggleTableBtn.textContent = "Minimize Table";
+    } else {
+        tableContainer.style.display = "none";
+        toggleTableBtn.textContent = "Show Table";
     }
 });
