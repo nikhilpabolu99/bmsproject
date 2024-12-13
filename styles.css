@@ -115,3 +115,78 @@ label {
     font-weight: bold;
     color: #555;
 }
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #000; /* Black background for contrast */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Heading Styles */
+.distorted-text {
+    font-size: 4rem;
+    position: relative;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    animation: distortion 2s infinite;
+}
+
+/* Red and White Text Styles */
+.red {
+    color: red;
+    position: relative;
+    z-index: 2;
+}
+
+.white {
+    color: white;
+    position: relative;
+    z-index: 2;
+}
+
+/* Distortion Effect */
+@keyframes distortion {
+    0%, 100% {
+        text-shadow: 2px 2px red, -2px -2px white;
+    }
+    25% {
+        text-shadow: 3px -3px red, -3px 3px white;
+    }
+    50% {
+        text-shadow: -4px 4px red, 4px -4px white;
+    }
+    75% {
+        text-shadow: 5px -5px red, -5px 5px white;
+    }
+}
+
+/* Blood Effect Below the Heading */
+.blood-effect {
+    width: 120px;
+    height: 60px;
+    position: absolute;
+    top: 120px;
+    background: red;
+    border-radius: 50%;
+    box-shadow: 0 0 10px red;
+    animation: drip 3s infinite ease-in-out;
+}
+
+/* Blood Dripping Animation */
+@keyframes drip {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(50px);
+        opacity: 0.7;
+    }
+}
