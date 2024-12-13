@@ -1,8 +1,9 @@
 /* General Styling */
 body {
-    font-family: 'Poppins', Arial, sans-serif; /* Added stylish font */
+    font-family: 'Poppins', Arial, sans-serif;
     padding: 20px;
-    background-color: #eef2ff; /* Subtle lavender background */
+    background-color: #000; /* Solid black background */
+    color: #fff; /* White text */
 }
 
 /* Container Styling */
@@ -10,9 +11,9 @@ body {
     max-width: 900px;
     margin: auto;
     padding: 20px;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #333; /* Dark gray background for the container */
+    border-radius: 0; /* Remove rounded corners for a blocky look */
+    box-shadow: none; /* Remove shadow for a flat look */
 }
 
 /* Dropdowns and Input Styling */
@@ -20,55 +21,50 @@ select, input[type="date"] {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
-    border: 2px solid #5a9cfb; /* Blue border for dropdowns */
-    border-radius: 25px;
-    background-color: #f9fbff; /* Light background for better contrast */
+    border: 2px solid #ff0000; /* Red border for contrast */
+    border-radius: 0; /* Remove rounded corners */
+    background-color: #000; /* Black background for inputs */
+    color: #fff; /* White text in inputs */
     font-size: 16px;
     font-family: 'Poppins', Arial, sans-serif;
-    transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
 }
 
 select:hover, input[type="date"]:hover {
-    border-color: #3b82e5; /* Darker blue on hover */
-    box-shadow: 0 0 5px rgba(90, 156, 251, 0.5);
+    border-color: #ff0000; /* Keep the red border on hover */
 }
 
 select:focus, input[type="date"]:focus {
     outline: none;
-    border-color: #1f6fe5; /* Focused border color */
-    box-shadow: 0 0 8px rgba(31, 111, 229, 0.6);
+    border-color: #ff0000; /* Red border when focused */
+    box-shadow: none; /* No box shadow for focus */
 }
 
 /* Buttons */
 button {
     padding: 12px 20px;
     margin: 10px 0;
-    background-color: #5a9cfb;
-    color: #fff;
+    background-color: #ff0000; /* Red background */
+    color: #fff; /* White text */
     border: 2px solid transparent;
-    border-radius: 25px;
+    border-radius: 0; /* Remove rounded corners */
     cursor: pointer;
     font-size: 16px;
     font-family: 'Poppins', Arial, sans-serif;
-    transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
-    background-color: #3b82e5;
-    transform: scale(1.05);
+    background-color: #cc0000; /* Darker red on hover */
 }
 
 /* Toggle Button */
 #toggleTableBtn {
-    background-color: #ffc107;
-    color: #444;
-    border: 2px solid #ffc107;
-    border-radius: 25px;
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    border: 2px solid #00ff00; /* Green border */
 }
 
 #toggleTableBtn:hover {
-    background-color: #ff9f07;
-    border-color: #e59e07;
+    background-color: #00cc00; /* Darker green on hover */
 }
 
 /* Flex Layout for Dropdowns */
@@ -76,7 +72,6 @@ button:hover {
     display: inline-block;
     margin-right: 10px;
     width: calc(48% - 20px); /* Adjusted for margins */
-    flex: none;
 }
 
 @media screen and (max-width: 768px) {
@@ -91,13 +86,10 @@ button:hover {
 #resultsContainer {
     margin-top: 20px;
     padding: 20px;
-    background-color: #f9fbff;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-#tableContainer, #summaryContainer {
-    margin-top: 20px;
+    background-color: #000; /* Black background for the results */
+    color: #fff; /* White text */
+    border-radius: 0; /* Remove rounded corners */
+    box-shadow: none; /* Remove box-shadow for a flat look */
 }
 
 /* Typography */
@@ -105,7 +97,7 @@ h1 {
     text-align: center;
     font-family: 'Poppins', Arial, sans-serif;
     font-size: 28px;
-    color: #333;
+    color: #ff0000; /* Red heading */
     margin-bottom: 20px;
 }
 
@@ -113,18 +105,7 @@ label {
     display: block;
     margin: 5px 10px;
     font-weight: bold;
-    color: #555;
-}
-/* General Styles */
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #000; /* Black background for contrast */
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+    color: #ff0000; /* Red label text */
 }
 
 /* Heading Styles */
@@ -135,36 +116,16 @@ body {
     font-weight: bold;
     letter-spacing: 2px;
     text-align: center;
-    animation: distortion 2s infinite;
+    color: #ff0000; /* Red text color */
 }
 
 /* Red and White Text Styles */
 .red {
     color: red;
-    position: relative;
-    z-index: 2;
 }
 
 .white {
     color: white;
-    position: relative;
-    z-index: 2;
-}
-
-/* Distortion Effect */
-@keyframes distortion {
-    0%, 100% {
-        text-shadow: 2px 2px red, -2px -2px white;
-    }
-    25% {
-        text-shadow: 3px -3px red, -3px 3px white;
-    }
-    50% {
-        text-shadow: -4px 4px red, 4px -4px white;
-    }
-    75% {
-        text-shadow: 5px -5px red, -5px 5px white;
-    }
 }
 
 /* Blood Effect Below the Heading */
@@ -173,7 +134,7 @@ body {
     height: 60px;
     position: absolute;
     top: 120px;
-    background: red;
+    background: red; /* Solid red */
     border-radius: 50%;
     box-shadow: 0 0 10px red;
     animation: drip 3s infinite ease-in-out;
