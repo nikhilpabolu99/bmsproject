@@ -1,160 +1,107 @@
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
-    background-color: #f4f7fa; /* Background color for better contrast */
+    background-color: #f0f4ff; /* Subtle blue background for better aesthetics */
 }
 
 .container {
     max-width: 900px;
     margin: auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 select, input[type="date"] {
-    width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 2px solid #d0d8e8;
+    border-radius: 25px;
     background-color: #fff;
+    margin: 10px;
+    flex: 1;
+}
+
+select:focus, input[type="date"]:focus {
+    border-color: #5a9cfb;
+    outline: none;
+    box-shadow: 0 0 5px rgba(90, 156, 251, 0.5);
 }
 
 button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
+    padding: 10px 20px;
+    background-color: #5a9cfb;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #3b82e5;
+    transform: scale(1.05);
 }
 
-/* Table styling */
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-}
-
-.results-table th, .results-table td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-.results-table th {
-    background-color: #f2f2f2;
-}
-
-/* Heading for each movie */
-h2 {
-    font-size: 1.5rem;
+/* Arrange dropdowns side by side */
+label {
+    display: block;
+    margin: 5px 10px;
     font-weight: bold;
-    margin-bottom: 10px;
-    color: #333;
+    color: #444;
 }
 
-/* Movie Summary Section */
-.movie-summary {
-    background-color: #e9f7fe;
-    padding: 15px;
-    border: 1px solid #d0eaf7;
-    margin-bottom: 20px;
+#citySelect, #movieSelect {
+    display: inline-block;
+    margin-right: 10px;
+    width: calc(48% - 20px); /* Adjusted for margins */
+    flex: none;
 }
 
-.movie-summary h3 {
-    margin-top: 0;
-    font-size: 1.2rem;
+input[type="date"], #fetchDataBtn {
+    display: block;
+    margin: 10px auto;
+    width: calc(100% - 40px); /* Adjusted for padding */
 }
 
-.movie-summary ul {
-    padding-left: 20px;
+#fetchDataBtn {
+    width: auto;
+    display: block;
+    margin: 10px auto;
 }
 
-.movie-summary li {
-    margin-bottom: 5px;
-}
-
-/* Total summary box styling */
-.total-summary {
+/* Results Section */
+#resultsContainer {
     margin-top: 20px;
-    background-color: #f0f0f0;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #eef5ff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.total-summary h3 {
-    margin: 0;
-}
-
-.total-summary ul {
-    padding-left: 20px;
-}
-
-.total-summary li {
-    margin-bottom: 5px;
-}
-
-/* New Styles for Toggle Button */
-.toggle-btn {
-    margin: 10px 0;
-    cursor: pointer;
-    padding: 5px 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
-
-.toggle-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Table Container Styling */
-#tableContainer {
-    display: none; /* Hidden by default */
+#tableContainer, #summaryContainer {
     margin-top: 20px;
-    border: 1px solid #ddd;
-    padding: 10px;
 }
 
-/* Show Table Button Visibility */
 #toggleTableBtn {
-    display: none; /* Initially hidden */
-    margin: 10px 0;
-    cursor: pointer;
-    padding: 5px 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
+    background-color: #ffc107;
+    color: #444;
+    border-radius: 25px;
 }
 
 #toggleTableBtn:hover {
-    background-color: #0056b3;
+    background-color: #ff9f07;
 }
 
-/* Results Container Styling */
-#resultsContainer {
-    margin-top: 20px;
-}
-
-/* Add responsive adjustments */
+/* Responsive Adjustments */
 @media screen and (max-width: 768px) {
-    .results-table th, .results-table td {
-        padding: 8px;
-        font-size: 0.9rem;
+    #citySelect, #movieSelect {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
     }
 
-    .movie-summary {
-        padding: 10px;
-    }
-
-    .total-summary {
-        padding: 10px;
+    input[type="date"], #fetchDataBtn {
+        width: 100%;
     }
 }
