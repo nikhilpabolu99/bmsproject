@@ -16,6 +16,7 @@ const toggleTableBtn = document.getElementById("toggleTableBtn");
 
 // Global Variables
 let formattedDate = "";
+const corsProxy = "https://cors-anywhere.herokuapp.com/"; // CORS proxy
 
 // Initialize Choices.js for dropdowns
 const initializeDropdown = (element) => {
@@ -28,16 +29,21 @@ const initializeDropdown = (element) => {
 
 // Fetch and populate cities
 const fetchCities = async () => {
-    const apiURL = "https://in.bookmyshow.com/api/explore/v1/discover/regions";
+    const apiURL = `${corsProxy}https://in.bookmyshow.com/api/explore/v1/discover/regions`;
     try {
-        const response = await fetch(apiURL);
+        const response = await fetch(apiURL, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+            },
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
         const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
             .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
 
-        //citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
@@ -55,7 +61,6 @@ citySelect.addEventListener("focus", fetchCities);
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
-    // Get selected cities and movie codes
     const cityCodes = Array.from(citySelect.selectedOptions).map(opt => opt.value);
     const cityNames = Array.from(citySelect.selectedOptions).map(opt => opt.textContent);
     const movieCodes = movieChoices.getValue(true);
@@ -71,14 +76,13 @@ const fetchShowtimes = async () => {
         return;
     }
 
-    // Variables for overall totals
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
     let totalShows = 0;
     let allResults = "";
     let totalSummaryDetails = "";
-    let finalSummaryData = []; // New array to store final summary data
+    let finalSummaryRows = "";
 
     for (const [cityIndex, cityCode] of cityCodes.entries()) {
         const cityName = cityNames[cityIndex];
@@ -89,10 +93,9 @@ const fetchShowtimes = async () => {
             let movieCollection = 0;
             let movieSeatsAvail = 0;
             let movieBookedTickets = 0;
-            let movieTotalShows = 0; // New variable to store the total shows for each movie
             const venueShowtimeMap = {};
 
-            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
+            const url = `${corsProxy}https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
 
             const headers = {
                 "x-region-code": cityCode,
@@ -102,7 +105,11 @@ const fetchShowtimes = async () => {
             try {
                 const response = await fetch(url, {
                     method: "GET",
-                    headers: headers,
+                    mode: "cors",
+                    headers: {
+                        ...headers,
+                        "Access-Control-Allow-Origin": "*",
+                    },
                 });
 
                 const data = await response.text();
@@ -147,8 +154,19 @@ const fetchShowtimes = async () => {
                 });
 
                 const uniqueShows = Object.keys(venueShowtimeMap).length;
+
+                if (uniqueShows > 0) {
+                    finalSummaryRows += `<tr>
+                        <td>${movieName}</td>
+                        <td>${cityName}</td>
+                        <td>${movieCollection.toFixed(2)}</td>
+                        <td>${movieSeatsAvail}</td>
+                        <td>${movieBookedTickets}</td>
+                        <td>${uniqueShows}</td>
+                    </tr>`;
+                }
+
                 const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
-                movieTotalShows = uniqueShows; // Update movie's total shows
 
                 allResults += `<h2>Results for Movie: ${movieName} in City: ${cityName}</h2>
                     <table class="results-table">
@@ -169,41 +187,15 @@ const fetchShowtimes = async () => {
                         </tbody>
                     </table>`;
 
-                totalSummaryDetails += `<div class="movie-summary">
-                    <h4>Summary for Movie: ${movieName} in City: ${cityName}</h4>
-                    <ul>
-                        <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
-                        <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
-                        <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
-                        <li><strong>Total Shows:</strong> ${uniqueShows}</li>
-                        <li><strong>Occupancy Rate:</strong> ${movieOccupancyRate}%</li>
-                    </ul>
-                </div>`;
-
                 totalCollection += movieCollection;
                 totalSeatsAvail += movieSeatsAvail;
                 totalBookedTickets += movieBookedTickets;
                 totalShows += uniqueShows;
-
-                // Add the movie summary data to the final summary table
-                if (movieTotalShows > 0) { // Only include movies with shows
-                    finalSummaryData.push({
-                        cityName: cityName,
-                        movieName: movieName,
-                        totalShows: movieTotalShows,
-                        movieCollection: movieCollection.toFixed(2),
-                        movieSeatsAvail: movieSeatsAvail,
-                        movieBookedTickets: movieBookedTickets
-                    });
-                }
-
             } catch (error) {
                 console.error(`Error fetching data for movie ${movieName} in city ${cityName}:`, error);
             }
         }
     }
-
-    const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
 
     const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
@@ -212,28 +204,27 @@ const fetchShowtimes = async () => {
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             <li><strong>Total Shows:</strong> ${totalShows}</li>
-            <li><strong>Overall Occupancy Rate:</strong> ${totalOccupancyRate}%</li>
         </ul>
     </div>`;
 
-    // Create the final summary table with movie and city data
-    let finalSummaryTable = `<h3>Final Summary of Shows</h3><table class="final-summary-table"><thead><tr><th>City</th><th>Movie</th><th>Total Shows</th><th>Collection (₹)</th><th>Seats Available</th><th>Booked Tickets</th></tr></thead><tbody>`;
-
-    finalSummaryData.forEach((row) => {
-        finalSummaryTable += `<tr>
-            <td>${row.cityName}</td>
-            <td>${row.movieName}</td>
-            <td>${row.totalShows}</td>
-            <td>₹${row.movieCollection}</td>
-            <td>${row.movieSeatsAvail}</td>
-            <td>${row.movieBookedTickets}</td>
-        </tr>`;
-    });
-
-    finalSummaryTable += `</tbody></table>`;
+    const finalSummaryTable = `<table class="final-summary-table">
+        <thead>
+            <tr>
+                <th>Movie</th>
+                <th>City</th>
+                <th>Total Collection (₹)</th>
+                <th>Total Seats Available</th>
+                <th>Total Booked Tickets</th>
+                <th>Total Shows</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${finalSummaryRows}
+        </tbody>
+    </table>`;
 
     tableContainer.innerHTML = allResults;
-    summaryContainer.innerHTML = totalSummary + totalSummaryDetails + finalSummaryTable;
+    summaryContainer.innerHTML = totalSummary + finalSummaryTable;
 
     tableContainer.style.display = "block";
     summaryContainer.style.display = "block";
