@@ -48,12 +48,35 @@
 
     <!-- Results Container -->
     <div id="resultsContainer">
+        <!-- Button to toggle visibility of tables and showtimes -->
         <button id="toggleTableBtn" class="toggle-btn">Show Table</button>
+        
+        <!-- Showtime Filter Buttons -->
+        <div id="showtimeButtons" style="display: none;">
+            <button class="showtime-btn" data-filter="1">EMS (1am - 4am)</button>
+            <button class="showtime-btn" data-filter="2">6am Shows</button>
+            <button class="showtime-btn" data-filter="3">Noon Shows</button>
+            <button class="showtime-btn" data-filter="4">Matinee Shows</button>
+            <button class="showtime-btn" data-filter="5">1st Show (4pm - 7:59pm)</button>
+            <button class="showtime-btn" data-filter="6">2nd Show (8pm - 11:59pm)</button>
+        </div>
+        
+        <!-- Table and Summary Containers -->
         <div id="tableContainer">
             <!-- Table will be injected here -->
         </div>
         <div id="summaryContainer">
             <!-- Summary will be injected here -->
+        </div>
+
+        <!-- Summary for each showtime filter -->
+        <div id="showtimeSummary" style="display: none;">
+            <div class="summary-section" id="summary-1"></div>
+            <div class="summary-section" id="summary-2"></div>
+            <div class="summary-section" id="summary-3"></div>
+            <div class="summary-section" id="summary-4"></div>
+            <div class="summary-section" id="summary-5"></div>
+            <div class="summary-section" id="summary-6"></div>
         </div>
     </div>
 </div>
