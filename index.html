@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Booking</title>
+    <title>Box Office Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 </head>
@@ -13,14 +13,15 @@
     <h1>Box Office Tracker</h1>
 
     <!-- City Dropdown -->
-    <label for="citySelect">Select a City:</label>
-    <select id="citySelect">
-        <option value="" disabled selected>Select a city...</option>
+    <label for="citySelect">Select Cities:</label>
+    <select id="citySelect" multiple>
+        <option value="" disabled>Select cities...</option>
     </select>
 
     <!-- Movie Dropdown -->
-    <label for="movieSelect">Select a Movie:</label>
+    <label for="movieSelect">Select Movies:</label>
     <select id="movieSelect" multiple>
+        <option value="" disabled>Select Movies/languages...</option>
         <option value="ET00356864">Pushpa (Malayalam)</option>
         <option value="ET00356724">Pushpa (Telugu 2D)</option>
         <option value="ET00421621">Pushpa (Telugu 3D)</option>
