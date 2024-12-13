@@ -124,8 +124,8 @@ const fetchShowtimes = async () => {
                                 <td>${maxSeats}</td>
                                 <td>${seatsAvail}</td>
                                 <td>${bookedTickets}</td>
-                                <td>â‚¹${currentPrice.toFixed(2)}</td>
-                                <td>â‚¹${collection.toFixed(2)}</td>
+                                <td>₹${currentPrice.toFixed(2)}</td>
+                                <td>₹${collection.toFixed(2)}</td>
                                 <td>${movieName}</td>
                             </tr>`;
                         });
@@ -146,8 +146,8 @@ const fetchShowtimes = async () => {
                             <th>Max Seats</th>
                             <th>Seats Available</th>
                             <th>Booked Tickets</th>
-                            <th>Current Price (â‚¹)</th>
-                            <th>Collection (â‚¹)</th>
+                            <th>Current Price (₹)</th>
+                            <th>Collection (₹)</th>
                             <th>Movie Name</th>
                         </tr>
                     </thead>
@@ -159,7 +159,7 @@ const fetchShowtimes = async () => {
             totalSummaryDetails += `<div class="movie-summary">
                 <h4>Summary for Movie: ${movieName}</h4>
                 <ul>
-                    <li><strong>Movie Collection:</strong> â‚¹${movieCollection.toFixed(2)}</li>
+                    <li><strong>Movie Collection:</strong> ₹${movieCollection.toFixed(2)}</li>
                     <li><strong>Seats Available:</strong> ${movieSeatsAvail}</li>
                     <li><strong>Booked Tickets:</strong> ${movieBookedTickets}</li>
                     <li><strong>Total Shows:</strong> ${uniqueShows}</li>
@@ -181,7 +181,7 @@ const fetchShowtimes = async () => {
     const totalSummary = `<div class="total-summary">
         <h3>Total Summary</h3>
         <ul>
-            <li><strong>Total Collection:</strong> â‚¹${totalCollection.toFixed(2)}</li>
+            <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
             <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             <li><strong>Total Shows:</strong> ${totalShows}</li>
@@ -244,9 +244,9 @@ const filterShows = (filterType) => {
             filteredRow.style.display = '';
         } else if (filterType === '6am-7am' && showHour >= 6 && showHour <= 7) {
             filteredRow.style.display = '';
-        } else if (filterType === 'noon' && showHour >= 10 && showHour <= 11) {
+        } else if (filterType === 'noon' && showHour >= 12 && showHour <= 14) {
             filteredRow.style.display = '';
-        } else if (filterType === 'matinee' && showHour >= 12 && showHour <= 15) {
+        } else if (filterType === 'matinee' && showHour >= 14 && showHour <= 16) {
             filteredRow.style.display = '';
         } else if (filterType === '1show' && showHour >= 16 && showHour <= 19) {
             filteredRow.style.display = '';
@@ -258,28 +258,15 @@ const filterShows = (filterType) => {
     });
 };
 
-
-// Utility function to check if a time is within the given range
-const isInTimeRange = (time, start, end) => {
-    const timeParts = time.split(':');
-    const startParts = start.split(':');
-    const endParts = end.split(':');
-
-    const timeMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
-    const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-    const endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-
-    return timeMinutes >= startMinutes && timeMinutes <= endMinutes;
-};
-
-fetchDataBtn.addEventListener("click", fetchShowtimes);
-
-toggleTableBtn.addEventListener("click", () => {
+// Toggle table visibility
+toggleTableBtn.addEventListener('click', () => {
     if (tableContainer.style.display === "none") {
         tableContainer.style.display = "block";
         toggleTableBtn.textContent = "Minimize Table";
     } else {
         tableContainer.style.display = "none";
-        toggleTableBtn.textContent = "Show Table";
+        toggleTableBtn.textContent = "Expand Table";
     }
 });
+
+fetchDataBtn.addEventListener("click", fetchShowtimes);
