@@ -39,7 +39,7 @@ const fetchCities = async () => {
         const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
             .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
 
-        citySelect.innerHTML = `<option value="allabove" selected>All Above</option>`;
+        //citySelect.innerHTML = `<option value="allabove" selected>All Above</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
