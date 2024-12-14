@@ -14,9 +14,13 @@ const tableContainer = document.getElementById("tableContainer");
 const summaryContainer = document.getElementById("summaryContainer");
 const toggleTableBtn = document.getElementById("toggleTableBtn");
 
+// New filter options for showtime
+const filterSelect = document.getElementById("filterSelect");
+const timeFilters = ['all', 'ems', 'noonshows', 'matinee', 'firstshows', 'seconds shows'];
+
 // Global Variables
 let formattedDate = "";
-let allShowtimes = []; // Store all showtimes for filtering
+let currentFilter = 'all'; // Default filter is 'all'
 
 // Initialize Choices.js for dropdowns
 const initializeDropdown = (element) => {
@@ -28,6 +32,12 @@ const initializeDropdown = (element) => {
         shouldSort: false,
     });
 };
+
+// Add event listener for filter change
+filterSelect.addEventListener("change", (e) => {
+    currentFilter = e.target.value;
+    filterShowtimes();
+});
 
 // Fetch and populate cities
 const fetchCities = async () => {
@@ -55,6 +65,48 @@ const fetchCities = async () => {
 
 citySelect.addEventListener("focus", fetchCities);
 
+// Function to filter showtimes based on selected filter
+const filterShowtimes = () => {
+    const allTables = document.querySelectorAll('.results-table');
+    allTables.forEach((table) => {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach((row) => {
+            const showtimeCell = row.cells[1];
+            const showtime = showtimeCell ? showtimeCell.textContent.trim() : '';
+            let isValidShowtime = false;
+
+            // Apply filter based on showtime
+            if (currentFilter === 'all') {
+                isValidShowtime = true;
+            } else if (currentFilter === 'ems') {
+                isValidShowtime = checkShowtimeRange(showtime, '00:00', '07:00');
+            } else if (currentFilter === 'noonshows') {
+                isValidShowtime = checkShowtimeRange(showtime, '10:30', '11:59');
+            } else if (currentFilter === 'matinee') {
+                isValidShowtime = checkShowtimeRange(showtime, '12:00', '15:30');
+            } else if (currentFilter === 'firstshows') {
+                isValidShowtime = checkShowtimeRange(showtime, '16:00', '19:59');
+            } else if (currentFilter === 'seconds shows') {
+                isValidShowtime = checkShowtimeRange(showtime, '20:00', '23:59');
+            }
+
+            row.style.display = isValidShowtime ? '' : 'none';
+        });
+    });
+};
+
+// Helper function to check if the showtime falls within a specified range
+const checkShowtimeRange = (showtime, start, end) => {
+    const showtimeParts = showtime.split(':');
+    const showtimeInMinutes = parseInt(showtimeParts[0]) * 60 + parseInt(showtimeParts[1]);
+    const startParts = start.split(':');
+    const startInMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+    const endParts = end.split(':');
+    const endInMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+
+    return showtimeInMinutes >= startInMinutes && showtimeInMinutes <= endInMinutes;
+};
+
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
     // Get selected cities and movie codes
@@ -81,8 +133,6 @@ const fetchShowtimes = async () => {
     let allResults = "";
     let totalSummaryDetails = "";
     let finalSummaryData = [];
-
-    allShowtimes = []; // Reset showtimes for each fetch
 
     for (const [cityIndex, cityCode] of cityCodes.entries()) {
         const cityName = cityNames[cityIndex];
@@ -116,7 +166,7 @@ const fetchShowtimes = async () => {
                     continue;
                 }
 
-                const jsonData = JSON.parse (data);
+                const jsonData = JSON.parse(data);
 
                 jsonData.ShowDetails.forEach((showDetail) => {
                     showDetail.Venues.forEach((venue) => {
@@ -145,9 +195,6 @@ const fetchShowtimes = async () => {
                                     <td>₹${currentPrice.toFixed(2)}</td>
                                     <td>₹${collection.toFixed(2)}</td>
                                 </tr>`;
-
-                                // Store showtime for filtering
-                                allShowtimes.push({ showTime: showTime.ShowTime, venue: venue.VenueName, category: category.PriceDesc });
                             });
                         });
                     });
@@ -221,89 +268,42 @@ const fetchShowtimes = async () => {
         </ul>
     </div>`;
 
-    let finalSummaryTable = `<h3>Final Summary of Shows</h3><table class="final-summary-table">
+    let finalSummaryTable = `<h2>Final Summary Data</h2><table class="summary-table">
         <thead>
             <tr>
                 <th>City</th>
                 <th>Movie</th>
                 <th>Total Shows</th>
-                <th>Collection (₹)</th>
+                <th>Collection</th>
                 <th>Seats Available</th>
                 <th>Booked Tickets</th>
             </tr>
         </thead>
         <tbody>`;
 
-    finalSummaryData.forEach((row) => {
+    finalSummaryData.forEach((summary) => {
         finalSummaryTable += `<tr>
-            <td>${row.cityName}</td>
-            <td>${row.movieName}</td>
-            <td>${row.totalShows}</td>
-            <td>₹${row.movieCollection}</td>
-            <td>${row.movieSeatsAvail}</td>
-            <td>${row.movieBookedTickets}</td>
+            <td>${summary.cityName}</td>
+            <td>${summary.movieName}</td>
+            <td>${summary.totalShows}</td>
+            <td>₹${summary.movieCollection}</td>
+            <td>${summary.movieSeatsAvail}</td>
+            <td>${summary.movieBookedTickets}</td>
         </tr>`;
     });
 
-    finalSummaryTable += `<tr class="total-row">
-        <td>All Above</td>
-        <td>All Above</td>
-        <td>${totalShows}</td>
-        <td>₹${totalCollection.toFixed(2)}</td>
-        <td>${totalSeatsAvail}</td>
-        <td>${totalBookedTickets}</td>
-    </tr>`;
-
     finalSummaryTable += `</tbody></table>`;
 
-    tableContainer.innerHTML = allResults;
+    resultsContainer.innerHTML = allResults;
     summaryContainer.innerHTML = totalSummary + totalSummaryDetails + finalSummaryTable;
-
+    filterShowtimes(); // Apply filter to results
     tableContainer.style.display = "block";
     summaryContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
-
-    // Create filter buttons
-    createFilterButtons();
-};
-
-const createFilterButtons = () => {
-    const filterContainer = document.createElement('div');
-    filterContainer.id = 'filterButtons';
-    filterContainer.innerHTML = `
-        <button id="allBtn">All</button>
-        <button id="emsBtn">EMS</button>
-        <button id="noonShowsBtn">Noon Shows</button>
-        <button id="matineeBtn">Matinee</button>
-        <button id="firstShowsBtn">1st Shows</button>
-        <button id="secondShowsBtn">2nd Shows</button>
-    `;
-    summaryContainer.appendChild(filterContainer);
-
-    document.getElementById('allBtn').addEventListener('click', () => displayFilteredResults(allShowtimes));
-    document.getElementById('emsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '00:00', '07:00'))));
-    document.getElementById('noonShowsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '10:30', '11:59'))));
-    document.getElementById('matineeBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '12:00', '15:30'))));
-    document.getElementById('firstShowsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '16:00', '19:59'))));
-    document.getElementById('secondShowsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '20:00', '23:59'))));
-};
-
-const isTimeBetween = (showTime, startTime, endTime) => {
-    const time = convertTo24Hour(showTime);
-    return time >= convertTo24Hour(startTime) && time <= convertTo24Hour(endTime);
-};
-
-const convertTo24Hour = (time) => {
-    const [hour, minute] = time.match(/(\d+)(am|pm)/i).slice(1, 3);
-    let hour24 = parseInt(hour, 10);
-    if (time.includes('pm') && hour24 < 12) hour24 += 12;
-    if (time.includes('am') && hour24 === 12) hour24 = 0;
-    return hour24 * 100 + parseInt(minute, 10);
 };
 
 fetchDataBtn.addEventListener("click", fetchShowtimes);
-
 toggleTableBtn.addEventListener("click", () => {
     if (tableContainer.style.display === "block") {
         tableContainer.style.display = "none";
