@@ -14,6 +14,10 @@ const tableContainer = document.getElementById("tableContainer");
 const summaryContainer = document.getElementById("summaryContainer");
 const toggleTableBtn = document.getElementById("toggleTableBtn");
 
+
+const filterSelect = document.getElementById("filterSelect");
+const timeFilters = ['all', 'ems', 'noonshows', 'matinee', 'firstshows', 'seconds shows'];
+
 // Global Variables
 let formattedDate = "";
 
@@ -27,6 +31,16 @@ const initializeDropdown = (element) => {
         shouldSort: false,
     });
 };
+
+// Add event listener for filter change
+if (filterSelect) {
+    filterSelect.addEventListener("change", (e) => {
+        const selectedValue = e.target.value;
+        console.log("Selected filter:", selectedValue);
+        currentFilter = selectedValue; // Update current filter
+        filterShowtimes(); // Apply filter to results
+    });
+}
 
 // Fetch and populate cities
 const fetchCities = async () => {
@@ -54,6 +68,49 @@ const fetchCities = async () => {
 };
 
 citySelect.addEventListener("focus", fetchCities);
+
+
+// Function to filter showtimes based on selected filter
+const filterShowtimes = () => {
+    const allTables = document.querySelectorAll('.results-table');
+    allTables.forEach((table) => {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach((row) => {
+            const showtimeCell = row.cells[1];
+            const showtime = showtimeCell ? showtimeCell.textContent.trim() : '';
+            let isValidShowtime = false;
+
+            // Apply filter based on showtime
+            if (currentFilter === 'all') {
+                isValidShowtime = true;
+            } else if (currentFilter === 'ems') {
+                isValidShowtime = checkShowtimeRange(showtime, '00:00', '07:00');
+            } else if (currentFilter === 'noonshows') {
+                isValidShowtime = checkShowtimeRange(showtime, '10:30', '11:59');
+            } else if (currentFilter === 'matinee') {
+                isValidShowtime = checkShowtimeRange(showtime, '12:00', '15:30');
+            } else if (currentFilter === 'firstshows') {
+                isValidShowtime = checkShowtimeRange(showtime, '16:00', '19:59');
+            } else if (currentFilter === 'seconds shows') {
+                isValidShowtime = checkShowtimeRange(showtime, '20:00', '23:59');
+            }
+
+            row.style.display = isValidShowtime ? '' : 'none';
+        });
+    });
+};
+
+// Helper function to check if the showtime falls within a specified range
+const checkShowtimeRange = (showtime, start, end) => {
+    const showtimeParts = showtime.split(':');
+    const showtimeInMinutes = parseInt(showtimeParts[0]) * 60 + parseInt(showtimeParts[1]);
+    const startParts = start.split(':');
+    const startInMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+    const endParts = end.split(':');
+    const endInMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+
+    return showtimeInMinutes >= startInMinutes && showtimeInMinutes <= endInMinutes;
+};
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
