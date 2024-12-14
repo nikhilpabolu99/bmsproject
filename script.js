@@ -35,37 +35,28 @@ filterSelect.addEventListener("change", (e) => {
     fetchShowtimes(); // Trigger fetching showtimes again with the updated filter
 });
 
-// Function to fetch cities
-const fetchCities = async () => {
-    const apiURL = "https://in.bookmyshow.com/api/explore/v1/discover/regions";
-    try {
-        const response = await fetch(apiURL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
-            .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
-        allCities.forEach((city) => {
-            const option = document.createElement("option");
-            option.value = city.RegionCode;
-            option.textContent = city.RegionName;
-            citySelect.appendChild(option);
-        });
-        initializeDropdown(citySelect);
-    } catch (error) {
-        console.error("Error fetching city data:", error);
-    }
+// Helper function to convert AM/PM time to 24-hour format
+const convertTo24HourFormat = (time) => {
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':');
+    hours = parseInt(hours);
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    return `${hours.toString().padStart(2, '0')}:${minutes}`;
 };
-
-citySelect.addEventListener("focus", fetchCities);
 
 // Helper function to check if the showtime is within a specific time range
 const checkShowtimeRange = (showtime, start, end) => {
-    const showtimeParts = showtime.split(':');
-    const showtimeInMinutes = parseInt(showtimeParts[0]) * 60 + parseInt(showtimeParts[1]);
-    const startParts = start.split(':');
-    const startInMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-    const endParts = end.split(':');
-    const endInMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+    const showtimeIn24Hr = convertTo24HourFormat(showtime);
+    const [showtimeHours, showtimeMinutes] = showtimeIn24Hr.split(':');
+    const showtimeInMinutes = parseInt(showtimeHours) * 60 + parseInt(showtimeMinutes);
+
+    const [startHours, startMinutes] = start.split(':');
+    const startInMinutes = parseInt(startHours) * 60 + parseInt(startMinutes);
+
+    const [endHours, endMinutes] = end.split(':');
+    const endInMinutes = parseInt(endHours) * 60 + parseInt(endMinutes);
+
     return showtimeInMinutes >= startInMinutes && showtimeInMinutes <= endInMinutes;
 };
 
@@ -227,3 +218,4 @@ const tbltoggle = () => {
 
 // Event Listener for Fetch Data Button
 fetchDataBtn.addEventListener("click", fetchShowtimes);
+            
