@@ -315,6 +315,9 @@ const fetchShowtimes = async () => {
     summaryContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
+    toggleTableBtn.addEventListener("click", () => {
+    const isTableVisible = tableContainer.style.display === "block";
+    tableContainer.style.display = isTableVisible ? "none" : "block";
 };
 
 fetchDataBtn.addEventListener("click", fetchShowtimes);
