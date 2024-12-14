@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 // DOM Elements
 const citySelect = document.getElementById("citySelect");
 const movieSelect = document.getElementById("movieSelect");
@@ -312,4 +313,5 @@ toggleTableBtn.addEventListener("click", () => {
         tableContainer.style.display = "block";
         toggleTableBtn.textContent = "Minimize Table";
     }
+});
 });
