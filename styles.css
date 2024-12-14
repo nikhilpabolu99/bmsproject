@@ -32,28 +32,6 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Buttons container for the different time-based buttons */
-.buttons-container {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.buttons-container button {
-    width: auto;
-    flex: 1;
-    padding: 10px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.buttons-container button:hover {
-    background-color: #0056b3;
-}
-
 /* Table styling */
 .results-table {
     width: 100%;
