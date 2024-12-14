@@ -20,8 +20,10 @@ let formattedDate = "";
 // Initialize Choices.js for dropdowns
 const initializeDropdown = (element) => {
     new Choices(element, {
+        removeItemButton: true,
+        placeholder: true,
         searchEnabled: true,
-        itemSelectText: "",
+        itemSelectText: 'Click to select',
         shouldSort: false,
     });
 };
@@ -37,6 +39,7 @@ const fetchCities = async () => {
         const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
             .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
 
+        //citySelect.innerHTML = `<option value="" disabled selected>Select a city...</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
@@ -54,6 +57,7 @@ citySelect.addEventListener("focus", fetchCities);
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
+    // Get selected cities and movie codes
     const cityCodes = Array.from(citySelect.selectedOptions).map(opt => opt.value);
     const cityNames = Array.from(citySelect.selectedOptions).map(opt => opt.textContent);
     const movieCodes = movieChoices.getValue(true);
@@ -69,6 +73,7 @@ const fetchShowtimes = async () => {
         return;
     }
 
+    // Variables for overall totals
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
@@ -86,7 +91,7 @@ const fetchShowtimes = async () => {
             let movieCollection = 0;
             let movieSeatsAvail = 0;
             let movieBookedTickets = 0;
-            let movieTotalShows = 0;
+            let movieTotalShows = 0; // New variable to store the total shows for each movie
             const venueShowtimeMap = {};
 
             const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
@@ -145,7 +150,7 @@ const fetchShowtimes = async () => {
 
                 const uniqueShows = Object.keys(venueShowtimeMap).length;
                 const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
-                movieTotalShows = uniqueShows;
+                movieTotalShows = uniqueShows; // Update movie's total shows
 
                 allResults += `<h2>Results for Movie: ${movieName} in City: ${cityName}</h2>
                     <table class="results-table">
@@ -182,7 +187,8 @@ const fetchShowtimes = async () => {
                 totalBookedTickets += movieBookedTickets;
                 totalShows += uniqueShows;
 
-                if (movieTotalShows > 0) { 
+                // Add the movie summary data to the final summary table
+                if (movieTotalShows > 0) { // Only include movies with shows
                     finalSummaryData.push({
                         cityName: cityName,
                         movieName: movieName,
@@ -212,6 +218,7 @@ const fetchShowtimes = async () => {
         </ul>
     </div>`;
 
+    // Create the final summary table with movie and city data
     let finalSummaryTable = `<h3>Final Summary of Shows</h3><table class="final-summary-table"><thead><tr><th>City</th><th>Movie</th><th>Total Shows</th><th>Collection (₹)</th><th>Seats Available</th><th>Booked Tickets</th></tr></thead><tbody>`;
 
     finalSummaryData.forEach((row) => {
@@ -225,26 +232,25 @@ const fetchShowtimes = async () => {
         </tr>`;
     });
 
-    finalSummaryTable += `
-        <tr class="total-row">
-            <td colspan="2">Total</td>
-            <td>${totalShows}</td>
-            <td>₹${totalCollection.toFixed(2)}</td>
-            <td>${totalSeatsAvail}</td>
-            <td>${totalBookedTickets}</td>
-        </tr>
-    </tbody></table>`;
+    finalSummaryTable += `</tbody></table>`;
 
-    resultsContainer.innerHTML = allResults;
-    summaryContainer.innerHTML = totalSummary + finalSummaryTable;
+    tableContainer.innerHTML = allResults;
+    summaryContainer.innerHTML = totalSummary + totalSummaryDetails + finalSummaryTable;
 
     tableContainer.style.display = "block";
-    toggleTableBtn.textContent = "Hide Table";
+    summaryContainer.style.display = "block";
+    toggleTableBtn.style.display = "inline-block";
+    toggleTableBtn.textContent = "Minimize Table";
 };
 
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 
 toggleTableBtn.addEventListener("click", () => {
-    tableContainer.style.display = tableContainer.style.display === "none" ? "block" : "none";
-    toggleTableBtn.textContent = tableContainer.style.display === "none" ? "Show Table" : "Hide Table";
+    if (tableContainer.style.display === "block") {
+        tableContainer.style.display = "none";
+        toggleTableBtn.textContent = "Show Table";
+    } else {
+        tableContainer.style.display = "block";
+        toggleTableBtn.textContent = "Minimize Table";
+    }
 });
