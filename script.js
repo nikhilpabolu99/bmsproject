@@ -28,6 +28,33 @@ const initializeDropdown = (element) => {
     });
 };
 
+const fetchCities = async () => {
+    const apiURL = "https://in.bookmyshow.com/api/explore/v1/discover/regions";
+    try {
+        const response = await fetch(apiURL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
+            .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
+
+        allCities.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city.RegionCode;
+            option.textContent = city.RegionName;
+            citySelect.appendChild(option);
+        });
+
+        initializeDropdown(citySelect);
+    } catch (error) {
+        console.error("Error fetching city data:", error);
+    }
+};
+
+citySelect.addEventListener("focus", fetchCities);
+
+//
+
 // Event listener for filter selection
 filterSelect.addEventListener("change", (e) => {
     const selectedValue = e.target.value;
