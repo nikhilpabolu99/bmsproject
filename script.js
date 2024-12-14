@@ -16,6 +16,7 @@ const toggleTableBtn = document.getElementById("toggleTableBtn");
 
 // Global Variables
 let formattedDate = "";
+let allShowtimes = []; // Store all showtimes for filtering
 
 // Initialize Choices.js for dropdowns
 const initializeDropdown = (element) => {
@@ -39,7 +40,6 @@ const fetchCities = async () => {
         const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
             .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
 
-        //citySelect.innerHTML = `<option value="allabove" selected>All Above</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
@@ -82,6 +82,8 @@ const fetchShowtimes = async () => {
     let totalSummaryDetails = "";
     let finalSummaryData = [];
 
+    allShowtimes = []; // Reset showtimes for each fetch
+
     for (const [cityIndex, cityCode] of cityCodes.entries()) {
         const cityName = cityNames[cityIndex];
         for (let i = 0; i < movieCodes.length; i++) {
@@ -114,7 +116,7 @@ const fetchShowtimes = async () => {
                     continue;
                 }
 
-                const jsonData = JSON.parse(data);
+                const jsonData = JSON.parse (data);
 
                 jsonData.ShowDetails.forEach((showDetail) => {
                     showDetail.Venues.forEach((venue) => {
@@ -143,6 +145,9 @@ const fetchShowtimes = async () => {
                                     <td>₹${currentPrice.toFixed(2)}</td>
                                     <td>₹${collection.toFixed(2)}</td>
                                 </tr>`;
+
+                                // Store showtime for filtering
+                                allShowtimes.push({ showTime: showTime.ShowTime, venue: venue.VenueName, category: category.PriceDesc });
                             });
                         });
                     });
@@ -258,6 +263,43 @@ const fetchShowtimes = async () => {
     summaryContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
+
+    // Create filter buttons
+    createFilterButtons();
+};
+
+const createFilterButtons = () => {
+    const filterContainer = document.createElement('div');
+    filterContainer.id = 'filterButtons';
+    filterContainer.innerHTML = `
+        <button id="allBtn">All</button>
+        <button id="emsBtn">EMS</button>
+        <button id="noonShowsBtn">Noon Shows</button>
+        <button id="matineeBtn">Matinee</button>
+        <button id="firstShowsBtn">1st Shows</button>
+        <button id="secondShowsBtn">2nd Shows</button>
+    `;
+    summaryContainer.appendChild(filterContainer);
+
+    document.getElementById('allBtn').addEventListener('click', () => displayFilteredResults(allShowtimes));
+    document.getElementById('emsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '00:00', '07:00'))));
+    document.getElementById('noonShowsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '10:30', '11:59'))));
+    document.getElementById('matineeBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '12:00', '15:30'))));
+    document.getElementById('firstShowsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '16:00', '19:59'))));
+    document.getElementById('secondShowsBtn').addEventListener('click', () => displayFilteredResults(allShowtimes.filter(show => isTimeBetween(show.showTime, '20:00', '23:59'))));
+};
+
+const isTimeBetween = (showTime, startTime, endTime) => {
+    const time = convertTo24Hour(showTime);
+    return time >= convertTo24Hour(startTime) && time <= convertTo24Hour(endTime);
+};
+
+const convertTo24Hour = (time) => {
+    const [hour, minute] = time.match(/(\d+)(am|pm)/i).slice(1, 3);
+    let hour24 = parseInt(hour, 10);
+    if (time.includes('pm') && hour24 < 12) hour24 += 12;
+    if (time.includes('am') && hour24 === 12) hour24 = 0;
+    return hour24 * 100 + parseInt(minute, 10);
 };
 
 fetchDataBtn.addEventListener("click", fetchShowtimes);
