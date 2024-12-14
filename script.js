@@ -35,10 +35,13 @@ const initializeDropdown = (element) => {
 };
 
 // Add event listener for filter change
-filterSelect.addEventListener("change", (e) => {
-    currentFilter = e.target.value;
-    filterShowtimes();
-});
+    if (filterSelect) {
+        filterSelect.addEventListener("change", (e) => {
+            const selectedValue = e.target.value;
+            console.log("Selected filter:", selectedValue);
+            // Your existing logic here
+        });
+    }
 
 // Fetch and populate cities
 const fetchCities = async () => {
