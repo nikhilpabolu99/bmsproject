@@ -28,12 +28,6 @@ const fetchCities = async () => {
 
         console.log("All Cities:", allCities);
 
-        // Select the dropdown element (ensure it exists in your HTML)
-        const citySelect = document.getElementById("citySelect");
-        if (!citySelect) {
-            throw new Error("Dropdown element with ID 'citySelect' not found.");
-        }
-
         // Populate the city dropdown
         allCities.forEach((city) => {
             const option = document.createElement("option");
