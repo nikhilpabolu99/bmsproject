@@ -189,7 +189,7 @@ const fetchShowtimes = async () => {
                                 <th>Show Time</th>
                                 <th>Category</th>
                                 <th>Max Seats</th>
-                                                                <th>Available Seats</th>
+                                <th>Available Seats</th>
                                 <th>Booked Tickets</th>
                                 <th>Ticket Price</th>
                                 <th>Collection</th>
