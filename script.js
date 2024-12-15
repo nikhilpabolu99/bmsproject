@@ -171,24 +171,25 @@ const fetchShowtimes = async () => {
                                 const bookedTickets = maxSeats - seatsAvail;
                                 const currentPrice = parseFloat(category.CurPrice);
                                 const collection = bookedTickets * currentPrice;
-
-                                movieCollection += collection;
-                                movieSeatsAvail += seatsAvail;
-                                movieBookedTickets += bookedTickets;
-
-                                const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
-                                venueShowtimeMap[showKey] = (venueShowtimeMap[showKey] || 0) + 1;
-
-                                movieResults += `<tr>
-                                    <td>${venue.VenueName}</td>
-                                    <td>${showTime.ShowTime}</td>
-                                    <td>${category.PriceDesc}</td>
-                                    <td>${maxSeats}</td>
-                                    <td>${seatsAvail}</td>
-                                    <td>${bookedTickets}</td>
-                                    <td>₹${currentPrice.toFixed(2)}</td>
-                                    <td>₹${collection.toFixed(2)}</td>
-                                </tr>`;
+                                if (filterShowtimes(showTime.ShowTime)) {
+                                    movieCollection += collection;
+                                    movieSeatsAvail += seatsAvail;
+                                    movieBookedTickets += bookedTickets;
+    
+                                    const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
+                                    venueShowtimeMap[showKey] = (venueShowtimeMap[showKey] || 0) + 1;
+    
+                                    movieResults += `<tr>
+                                        <td>${venue.VenueName}</td>
+                                        <td>${showTime.ShowTime}</td>
+                                        <td>${category.PriceDesc}</td>
+                                        <td>${maxSeats}</td>
+                                        <td>${seatsAvail}</td>
+                                        <td>${bookedTickets}</td>
+                                        <td>₹${currentPrice.toFixed(2)}</td>
+                                        <td>₹${collection.toFixed(2)}</td>
+                                    </tr>`;
+                                }
                             });
                         });
                     });
