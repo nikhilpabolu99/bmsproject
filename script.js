@@ -137,18 +137,29 @@ const fetchShowtimes = async () => {
             let movieBookedTickets = 0;
             let movieTotalShows = 0;
 
-            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&dateCode=${formattedDate}`;
+            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
+
+            const headers = {
+                "x-region-code": cityCode,
+                "x-subregion-code": cityCode,
+            };
 
             try {
-                const response = await fetch(url);
-                const data = await response.json();
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: headers,
+                });
 
-                if (!data.ShowDetails) {
-                    console.warn(`No show details for movie ${movieName} in city ${cityName}, skipping.`);
+                const data = await response.text();
+
+                if (data.includes("<!DOCTYPE")) {
+                    console.warn(`Invalid response for movie ${movieName} in city ${cityName}, skipping.`);
                     continue;
                 }
 
-                data.ShowDetails.forEach((showDetail) => {
+                const jsonData = JSON.parse(data);
+
+                jsonData.ShowDetails.forEach((showDetail) => {
                     showDetail.Venues.forEach((venue) => {
                         venue.ShowTimes.forEach((showTime) => {
                             showTime.Categories.forEach((category) => {
