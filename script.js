@@ -12,8 +12,10 @@ const fetchDataBtn = document.getElementById("fetchDataBtn");
 const resultsContainer = document.getElementById("resultsContainer");
 const tableContainer = document.getElementById("tableContainer");
 const summaryContainer = document.getElementById("summaryContainer");
+const toggleTableBtn = document.getElementById("toggleTableBtn");
 const filterSelect = document.getElementById("filterSelect");
 
+// Global Variables
 let formattedDate = "";
 let currentFilter = 'all'; // Default filter set to 'all'
 
@@ -28,6 +30,7 @@ const initializeDropdown = (element) => {
     });
 };
 
+// Fetch and populate cities
 const fetchCities = async () => {
     const apiURL = "https://in.bookmyshow.com/api/explore/v1/discover/regions";
     try {
@@ -53,12 +56,9 @@ const fetchCities = async () => {
 
 citySelect.addEventListener("focus", fetchCities);
 
-//
-
 // Event listener for filter selection
 filterSelect.addEventListener("change", (e) => {
-    const selectedValue = e.target.value;
-    currentFilter = selectedValue; // Update the current filter
+    currentFilter = e.target.value; // Update the current filter
     fetchShowtimes(); // Trigger fetching showtimes again with the updated filter
 });
 
@@ -89,16 +89,20 @@ const checkShowtimeRange = (showtime, start, end) => {
 
 // Function to filter showtimes based on the selected filter
 const filterShowtimes = (showtime) => {
+    if (!showtime || typeof showtime !== 'string') {
+        console.warn(`Invalid showtime: ${showtime}`);
+        return false;
+    }
     if (currentFilter === 'all') return true;
     if (currentFilter === 'ems') return checkShowtimeRange(showtime, '00:00', '07:00');
     if (currentFilter === 'noonshows') return checkShowtimeRange(showtime, '10:30', '11:59');
     if (currentFilter === 'matinee') return checkShowtimeRange(showtime, '12:00', '15:30');
     if (currentFilter === 'firstshows') return checkShowtimeRange(showtime, '16:00', '19:59');
-    if (currentFilter === 'seconds shows') return checkShowtimeRange(showtime, '20:00', '23:59');
+    if (currentFilter === 'secondshows') return checkShowtimeRange(showtime, '20:00', '23:59');
     return false;
 };
 
-// Function to fetch showtimes data and populate the results
+// Fetch showtimes and collections
 const fetchShowtimes = async () => {
     const cityCodes = Array.from(citySelect.selectedOptions).map(opt => opt.value);
     const cityNames = Array.from(citySelect.selectedOptions).map(opt => opt.textContent);
@@ -115,13 +119,13 @@ const fetchShowtimes = async () => {
         return;
     }
 
-    let allResults = "";
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
     let totalShows = 0;
+    let allResults = "";
+    let totalSummaryDetails = "";
 
-    // Loop through cities and movies to fetch data
     for (const [cityIndex, cityCode] of cityCodes.entries()) {
         const cityName = cityNames[cityIndex];
         for (let i = 0; i < movieCodes.length; i++) {
@@ -133,19 +137,18 @@ const fetchShowtimes = async () => {
             let movieBookedTickets = 0;
             let movieTotalShows = 0;
 
-            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&subRegion=${cityCode}&bmsId=1.21345445.1703250084656&token=67x1xa33b4x422b361ba&lat=12.971599&lon=77.59457&dateCode=${formattedDate}`;
+            const url = `https://in.bookmyshow.com/api/movies-data/showtimes-by-event?appCode=MOBAND2&appVersion=14304&language=en&eventCode=${movieCode}&regionCode=${cityCode}&dateCode=${formattedDate}`;
 
             try {
                 const response = await fetch(url);
-                const data = await response.text();
+                const data = await response.json();
 
-                if (data.includes("<!DOCTYPE")) {
-                    console.warn(`Invalid response for movie ${movieName} in city ${cityName}, skipping.`);
+                if (!data.ShowDetails) {
+                    console.warn(`No show details for movie ${movieName} in city ${cityName}, skipping.`);
                     continue;
                 }
 
-                const jsonData = JSON.parse(data);
-                jsonData.ShowDetails.forEach((showDetail) => {
+                data.ShowDetails.forEach((showDetail) => {
                     showDetail.Venues.forEach((venue) => {
                         venue.ShowTimes.forEach((showTime) => {
                             showTime.Categories.forEach((category) => {
@@ -159,6 +162,7 @@ const fetchShowtimes = async () => {
                                     movieCollection += collection;
                                     movieSeatsAvail += seatsAvail;
                                     movieBookedTickets += bookedTickets;
+                                    movieTotalShows++;
 
                                     movieResults += `<tr>
                                         <td>${venue.VenueName}</td>
@@ -176,73 +180,75 @@ const fetchShowtimes = async () => {
                     });
                 });
 
-                const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
-                movieTotalShows = movieResults.length > 0 ? movieResults.split('</tr>').length - 1 : 0;
+                allResults += `<h2>Results for Movie: ${movieName} in City: ${cityName}</h2>
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Venue</th>
+                                <th>Show Time</th>
+                                <th>Category</th>
+                                <th>Max Seats</th>
+                                <th>Available Seats</th>
+                                <th>Booked Tickets</th>
+                                <th>Ticket Price</th>
+                                <th>Collection</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${movieResults || '<tr><td colspan="8">No results found for the selected filter.</td></tr>'}
+                        </tbody>
+                    </table>`;
 
                 totalCollection += movieCollection;
                 totalSeatsAvail += movieSeatsAvail;
                 totalBookedTickets += movieBookedTickets;
                 totalShows += movieTotalShows;
 
-                allResults += `<h2>Results for Movie: ${movieName} in City: ${cityName}</h2>
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Venue</th>
-                                <th>Showtime</th>
-                                <th>Price</th>
-                                <th>Max Seats</th>
-                                <th>Seats Available</th>
-                                <th>Seats Booked</th>
-                                <th>Ticket Price</th>
-                                <th>Total Collection</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${movieResults}
-                        </tbody>
-                    </table>
-                    <h3>Total Collection: ₹${movieCollection.toFixed(2)}</h3>
-                    <h3>Total Seats Available: ${movieSeatsAvail}</h3>
-                    <h3>Total Seats Booked: ${movieBookedTickets}</h3>
-                    <h3>Occupancy Rate: ${movieOccupancyRate}%</h3>
-                    <h3>Total Shows: ${movieTotalShows}</h3>`;
+                totalSummaryDetails += `
+                    <h3>Summary for Movie: ${movieName} in City: ${cityName}</h3>
+                    <p>Total Collection: ₹${movieCollection.toFixed(2)}</p>
+                    <p>Total Seats Available: ${movieSeatsAvail}</p>
+                    <p>Total Booked Tickets: ${movieBookedTickets}</p>
+                    <p>Total Shows: ${movieTotalShows}</p>`;
             } catch (error) {
-                console.error(`Error fetching showtimes for movie ${movieName}:`, error);
+                console.error(`Error fetching data for movie ${movieName} in city ${cityName}:`, error);
             }
         }
     }
 
+    // Populate the results container
+    resultsContainer.innerHTML = `
+        <div class="results-content">
+            ${allResults || '<p>No results available. Please try different filters or input.</p>'}
+        </div>`;
+
+    // Populate the summary container
     summaryContainer.innerHTML = `
-        <h3>Overall Summary:</h3>
-        <table>
-            <tr>
-                <th>Total Collection</th>
-                <td>₹${totalCollection.toFixed(2)}</td>
-            </tr>
-            <tr>
-                <th>Total Seats Available</th>
-                <td>${totalSeatsAvail}</td>
-            </tr>
-            <tr>
-                <th>Total Seats Booked</th>
-                <td>${totalBookedTickets}</td>
-            </tr>
-            <tr>
-                <th>Total Shows</th>
-                <td>${totalShows}</td>
-            </tr>
-        </table>
-    `;
-    resultsContainer.innerHTML = allResults;
+        <div class="summary-content">
+            <h2>Overall Summary</h2>
+            <p>Total Collection: ₹${totalCollection.toFixed(2)}</p>
+            <p>Total Seats Available: ${totalSeatsAvail}</p>
+            <p>Total Booked Tickets: ${totalBookedTickets}</p>
+            <p>Total Shows: ${totalShows}</p>
+            ${totalSummaryDetails || ''}
+        </div>`;
 };
 
-// Toggle table visibility (keep your existing function intact)
-const tbltoggle = () => {
-    const table = document.querySelector("#tableContainer");
-    table.classList.toggle("hidden");
-};
-
-// Event Listener for Fetch Data Button
+// Event listener for the fetch data button
 fetchDataBtn.addEventListener("click", fetchShowtimes);
-            
+
+// Event listener to toggle the visibility of the results table
+toggleTableBtn.addEventListener("click", () => {
+    if (tableContainer.style.display === "none" || !tableContainer.style.display) {
+        tableContainer.style.display = "block";
+        toggleTableBtn.textContent = "Hide Table";
+    } else {
+        tableContainer.style.display = "none";
+        toggleTableBtn.textContent = "Show Table";
+    }
+});
+
+// Initialize the application
+(() => {
+    console.log("Application Initialized");
+})();
