@@ -92,6 +92,11 @@ const checkShowtimeRange = (showtime, start, end) => {
 
 // Function to filter showtimes based on the selected filter
 const filterShowtimes = (showtime) => {
+    // Ensure showtime is in string format and not undefined/null
+    if (!showtime || typeof showtime !== 'string') {
+        console.warn(`Invalid showtime: ${showtime}`);
+        return false;
+    }
     if (currentFilter === 'all') return true;
     if (currentFilter === 'ems') return checkShowtimeRange(showtime, '00:00', '07:00');
     if (currentFilter === 'noonshows') return checkShowtimeRange(showtime, '10:30', '11:59');
