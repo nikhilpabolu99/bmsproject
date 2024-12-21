@@ -19,6 +19,7 @@ const toggleTableBtn = document.getElementById("toggleTableBtn");
 let formattedDate = "";
 let allShowtimesData = []; // Store all showtimes data
 let currentFilter = 'all'; // Default filter
+let initialData = []; // Store initial fetched data
 
 // Initialize Choices.js for dropdowns
 const initializeDropdown = (element) => {
@@ -85,7 +86,7 @@ const checkShowtimeRange = (showtime, start, end) => {
 // Function to filter showtimes based on the selected filter
 const filterShowtimes = (showtime) => {
     if (!showtime || typeof showtime !== 'string') {
-        console.warn(`Invalid showtime: ${ showtime}`);
+        console.warn(`Invalid showtime: ${showtime}`);
         return false;
     }
     if (currentFilter === 'all') return true;
@@ -158,8 +159,6 @@ const fetchShowtimes = async () => {
                 }
 
                 const jsonData = JSON.parse(data);
-                allShowtimesData = []; // Reset the showtimes data for filtering
-
                 jsonData.ShowDetails.forEach((showDetail) => {
                     showDetail.Venues.forEach((venue) => {
                         venue.ShowTimes.forEach((showTime) => {
@@ -187,6 +186,8 @@ const fetchShowtimes = async () => {
                                     bookedTickets: bookedTickets,
                                     currentPrice: currentPrice,
                                     collection: collection,
+                                    city: cityName,
+                                    movie: movieName
                                 });
 
                                 movieResults += `<tr>
@@ -208,6 +209,7 @@ const fetchShowtimes = async () => {
                 const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
                 movieTotalShows = uniqueShows;
 
+               
                 allResults += `<h2>Results for Movie: ${movieName} in City: ${cityName}</h2>
                     <table class="results-table">
                         <thead>
@@ -326,6 +328,9 @@ const fetchShowtimes = async () => {
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
 
+    // Store the initial data for filtering
+    initialData = [...allShowtimesData];
+
     // Enable the filter button after fetching data
     fetchDataBtn.disabled = false;
 };
@@ -351,7 +356,7 @@ filterSelect.addEventListener("change", (e) => {
 
 // Function to apply the filter to the showtimes
 const applyFilter = () => {
-    const filteredResults = allShowtimesData.filter(showtime => filterShowtimes(showtime.showTime));
+    const filteredResults = initialData.filter(showtime => filterShowtimes(showtime.showTime));
     
     // Update the results table
     const filteredTableRows = filteredResults.map(showtime => `
@@ -418,14 +423,16 @@ const applyFilter = () => {
 
     const uniqueCities = [...new Set(filteredResults.map(showtime => showtime.city))];
     uniqueCities.forEach(city => {
-        const cityResults = filteredResults.filter(showtime => showtime.city === city);
-        const cityTotalCollection = cityResults.reduce((sum, showtime) => sum + showtime.collection, 0);
-        const cityTotalSeatsAvail = cityResults.reduce((sum, showtime) => sum + showtime.seatsAvail, 0);
-        const cityTotalBookedTickets = cityResults.reduce((sum, showtime) => sum + showtime.bookedTickets, 0);
-        const cityTotalShows = cityResults.length;
-        const cityOccupancyRate = cityTotalBookedTickets + cityTotalSeatsAvail > 0 
-            ? ((cityTotalBookedTickets / (cityTotalSeatsAvail + cityTotalBookedTickets)) * 100).toFixed(2) 
-            : 0;
+    const cityResults = filteredResults.filter(showtime => showtime.city === city);
+    const cityTotalCollection = cityResults.reduce((sum, showtime) => sum + showtime.collection, 0);
+    const cityTotalSeatsAvail = cityResults.reduce((sum, showtime) => sum + showtime.seatsAvail, 0);
+    const cityTotalBookedTickets = cityResults.reduce((sum, showtime) => sum + showtime.bookedTickets, 0);
+    const cityTotalShows = cityResults.length;
+
+    // Calculate occupancy rate
+    const cityOccupancyRate = (cityTotalBookedTickets + cityTotalSeatsAvail > 0) 
+        ? ((cityTotalBookedTickets / (cityTotalSeatsAvail + cityTotalBookedTickets)) * 100).toFixed(2) 
+        : 0;
 
         finalSummaryTable += `<tr>
             <td>${city}</td>
