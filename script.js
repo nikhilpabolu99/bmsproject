@@ -303,7 +303,7 @@ const fetchShowtimes = async () => {
         </tr>`;
     });
 
-    const totalSeats = totalSeats Avail + totalBookedTickets;
+    const totalSeats = totalSeatsAvail + totalBookedTickets;
 
     finalSummaryTable += `<tr class="total-row">
         <td>All Above</td>
