@@ -187,6 +187,19 @@ const fetchShowtimes = async () => {
             <td>${row.occupancy}</td>
         </tr>`;
     });
+    const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
+    const totalSeats = summaryData.reduce((sum, row) => sum + row.totalSeats, 0);
+
+    finalSummaryTable += `<tr class="total-row">
+        <td>All Above</td>
+        <td>All Above</td>
+        <td>${totalShows}</td>
+        <td>₹${totalCollection.toFixed(2)}</td>
+        <td>${totalSeatsAvail}</td>
+        <td>${totalBookedTickets}</td>
+        <td>${totalSeats}</td>
+        <td>${totalOccupancyRate}%</td> <!-- Occupancy added here -->
+    </tr>`;
 
     finalSummaryTable += `</tbody></table>`;
 
