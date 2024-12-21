@@ -1,6 +1,7 @@
 // DOM Elements
 const citySelect = document.getElementById("citySelect");
 const movieSelect = document.getElementById("movieSelect");
+const filterSelect = document.getElementById("filterSelect"); // New filter dropdown
 const movieChoices = new Choices(movieSelect, {
     removeItemButton: true,
     placeholder: true,
@@ -13,11 +14,11 @@ const resultsContainer = document.getElementById("resultsContainer");
 const tableContainer = document.getElementById("tableContainer");
 const summaryContainer = document.getElementById("summaryContainer");
 const toggleTableBtn = document.getElementById("toggleTableBtn");
-const filterSelect = document.getElementById("filterSelect");
 
 // Global Variables
 let formattedDate = "";
-let currentFilter = 'all'; // Default filter set to 'all'
+let allShowtimesData = []; // Store all showtimes data
+let currentFilter = 'all'; // Default filter
 
 // Initialize Choices.js for dropdowns
 const initializeDropdown = (element) => {
@@ -41,7 +42,6 @@ const fetchCities = async () => {
         const allCities = [...data.BookMyShow.TopCities, ...data.BookMyShow.OtherCities]
             .sort((a, b) => a.RegionName.localeCompare(b.RegionName));
 
-        //citySelect.innerHTML = `<option value="allabove" selected>All Above</option>`;
         allCities.forEach((city) => {
             const option = document.createElement("option");
             option.value = city.RegionCode;
@@ -56,14 +56,6 @@ const fetchCities = async () => {
 };
 
 citySelect.addEventListener("focus", fetchCities);
-
-
-// Event listener for filter selection
-filterSelect.addEventListener("change", (e) => {
-    const selectedValue = e.target.value;
-    currentFilter = selectedValue; // Update the current filter
-    fetchShowtimes(); // Trigger fetching showtimes again with the updated filter
-});
 
 // Helper function to convert AM/PM time to 24-hour format
 const convertTo24HourFormat = (time) => {
@@ -92,7 +84,6 @@ const checkShowtimeRange = (showtime, start, end) => {
 
 // Function to filter showtimes based on the selected filter
 const filterShowtimes = (showtime) => {
-    // Ensure showtime is in string format and not undefined/null
     if (!showtime || typeof showtime !== 'string') {
         console.warn(`Invalid showtime: ${showtime}`);
         return false;
@@ -100,7 +91,7 @@ const filterShowtimes = (showtime) => {
     if (currentFilter === 'all') return true;
     if (currentFilter === 'ems') return checkShowtimeRange(showtime, '00:00', '07:00');
     if (currentFilter === 'noonshows') return checkShowtimeRange(showtime, '10:30', '11:59');
-    if (currentFilter === 'matinee') return checkShowtimeRange(showtime, '12:00', '15:30');
+    if (currentFilter === 'matinee') return checkShowtimeRange(showtime, '12: 00', '15:30');
     if (currentFilter === 'firstshows') return checkShowtimeRange(showtime, '16:00', '19:59');
     if (currentFilter === 'seconds shows') return checkShowtimeRange(showtime, '20:00', '23:59');
     return false;
@@ -108,7 +99,6 @@ const filterShowtimes = (showtime) => {
 
 // Fetch showtimes and collections
 const fetchShowtimes = async () => {
-    // Get selected cities and movie codes
     const cityCodes = Array.from(citySelect.selectedOptions).map(opt => opt.value);
     const cityNames = Array.from(citySelect.selectedOptions).map(opt => opt.textContent);
     const movieCodes = movieChoices.getValue(true);
@@ -124,7 +114,9 @@ const fetchShowtimes = async () => {
         return;
     }
 
-    // Variables for overall totals
+    // Disable the fetch button
+    fetchDataBtn.disabled = true;
+
     let totalCollection = 0;
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
@@ -166,6 +158,7 @@ const fetchShowtimes = async () => {
                 }
 
                 const jsonData = JSON.parse(data);
+                allShowtimesData = []; // Reset the showtimes data for filtering
 
                 jsonData.ShowDetails.forEach((showDetail) => {
                     showDetail.Venues.forEach((venue) => {
@@ -176,31 +169,42 @@ const fetchShowtimes = async () => {
                                 const bookedTickets = maxSeats - seatsAvail;
                                 const currentPrice = parseFloat(category.CurPrice);
                                 const collection = bookedTickets * currentPrice;
-                                if (filterShowtimes(showTime.ShowTime)) {
-                                    movieCollection += collection;
-                                    movieSeatsAvail += seatsAvail;
-                                    movieBookedTickets += bookedTickets;
-    
-                                    const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
-                                    venueShowtimeMap[showKey] = (venueShowtimeMap[showKey] || 0) + 1;
-    
-                                    movieResults += `<tr>
-                                        <td>${venue.VenueName}</td>
-                                        <td>${showTime.ShowTime}</td>
-                                        <td>${category.PriceDesc}</td>
-                                        <td>${maxSeats}</td>
-                                        <td>${seatsAvail}</td>
-                                        <td>${bookedTickets}</td>
-                                        <td>₹${currentPrice.toFixed(2)}</td>
-                                        <td>₹${collection.toFixed(2)}</td>
-                                    </tr>`;
-                                }
+
+                                movieCollection += collection;
+                                movieSeatsAvail += seatsAvail;
+                                movieBookedTickets += bookedTickets;
+
+                                const showKey = `${venue.VenueName}-${showTime.ShowTime}`;
+                                venueShowtimeMap[showKey] = (venueShowtimeMap[showKey] || 0) + 1;
+
+                                // Store showtime data for filtering
+                                allShowtimesData.push({
+                                    venue: venue.VenueName,
+                                    showTime: showTime.ShowTime,
+                                    category: category.PriceDesc,
+                                    maxSeats: maxSeats,
+                                    seatsAvail: seatsAvail,
+                                    bookedTickets: bookedTickets,
+                                    currentPrice: currentPrice,
+                                    collection: collection,
+                                });
+
+                                movieResults += `<tr>
+                                    <td>${venue.VenueName}</td>
+                                    <td>${showTime.ShowTime}</td>
+                                    <td>${category.PriceDesc}</td>
+                                    <td>${maxSeats}</td>
+                                    <td>${seatsAvail}</td>
+                                    <td>${bookedTickets}</td>
+                                    <td>₹${currentPrice.toFixed(2)}</td>
+                                    <td>₹${collection.toFixed(2)}</td>
+                                </tr>`;
                             });
                         });
                     });
                 });
 
-                const uniqueShows = Object.keys(venueShowtimeMap).length;
+                const uniqueShows = Object.keys(venueShowtimeMap). length;
                 const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
                 movieTotalShows = uniqueShows;
 
@@ -247,6 +251,8 @@ const fetchShowtimes = async () => {
                         movieCollection: movieCollection.toFixed(2),
                         movieSeatsAvail: movieSeatsAvail,
                         movieBookedTickets: movieBookedTickets,
+                        totalseats: movieSeatsAvail + movieBookedTickets,
+                        occupancy: movieOccupancyRate + '%',
                     });
                 }
             } catch (error) {
@@ -265,6 +271,7 @@ const fetchShowtimes = async () => {
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             <li><strong>Total Shows:</strong> ${totalShows}</li>
             <li><strong>Overall Occupancy Rate:</strong> ${totalOccupancyRate}%</li>
+            <li><strong>Total Seats:</strong> ${totalSeatsAvail + totalBookedTickets}</li>
         </ul>
     </div>`;
 
@@ -277,6 +284,8 @@ const fetchShowtimes = async () => {
                 <th>Collection (₹)</th>
                 <th>Seats Available</th>
                 <th>Booked Tickets</th>
+                <th>Total Occupancy</th>
+                <th>Total Seats</th>
             </tr>
         </thead>
         <tbody>`;
@@ -289,8 +298,12 @@ const fetchShowtimes = async () => {
             <td>₹${row.movieCollection}</td>
             <td>${row.movieSeatsAvail}</td>
             <td>${row.movieBookedTickets}</td>
+            <td>${row.occupancy}</td>
+            <td>${row.totalseats}</td>
         </tr>`;
     });
+
+    const totalSeats = totalSeatsAvail + totalBookedTickets;
 
     finalSummaryTable += `<tr class="total-row">
         <td>All Above</td>
@@ -299,6 +312,8 @@ const fetchShowtimes = async () => {
         <td>₹${totalCollection.toFixed(2)}</td>
         <td>${totalSeatsAvail}</td>
         <td>${totalBookedTickets}</td>
+        <td>${totalOccupancyRate}%</td>
+        <td>${totalSeats }</td>
     </tr>`;
 
     finalSummaryTable += `</tbody></table>`;
@@ -310,16 +325,39 @@ const fetchShowtimes = async () => {
     summaryContainer.style.display = "block";
     toggleTableBtn.style.display = "inline-block";
     toggleTableBtn.textContent = "Minimize Table";
+
+    // Enable the filter button after fetching data
+    fetchDataBtn.disabled = false;
 };
 
-fetchDataBtn.addEventListener("click", fetchShowtimes);
-
-toggleTableBtn.addEventListener("click", () => {
-    if (tableContainer.style.display === "block") {
-        tableContainer.style.display = "none";
-        toggleTableBtn.textContent = "Show Table";
-    } else {
-        tableContainer.style.display = "block";
-        toggleTableBtn.textContent = "Minimize Table";
-    }
+// Event listener for filter selection
+filterSelect.addEventListener("change", (e) => {
+    const selectedValue = e.target.value;
+    currentFilter = selectedValue; // Update the current filter
+    applyFilter(); // Apply the filter to the existing data
 });
+
+// Function to apply the filter to the showtimes
+const applyFilter = () => {
+    const filteredResults = allShowtimesData.filter(showtime => filterShowtimes(showtime.showTime));
+    const filteredTableRows = filteredResults.map(showtime => `
+        <tr>
+            <td>${showtime.venue}</td>
+            <td>${showtime.showTime}</td>
+            <td>${showtime.category}</td>
+            <td>${showtime.maxSeats}</td>
+            <td>${showtime.seatsAvail}</td>
+            <td>${showtime.bookedTickets}</td>
+            <td>₹${showtime.currentPrice.toFixed(2)}</td>
+            <td>₹${showtime.collection.toFixed(2)}</td>
+        </tr>
+    `).join('');
+
+    // Update the table with filtered results
+    const resultsTable = document.querySelector('.results-table tbody');
+    resultsTable.innerHTML = filteredTableRows;
+};
+
+// Initialize the dropdowns
+initializeDropdown(filterSelect);
+fetchCities();
