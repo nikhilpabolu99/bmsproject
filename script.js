@@ -75,7 +75,7 @@ const fetchShowtimes = async () => {
     let totalSeatsAvail = 0;
     let totalBookedTickets = 0;
     let totalShows = 0;
-    let allResults = "";
+    let allResults = "";  // Populating this variable
     let totalSummaryDetails = "";
     let finalSummaryData = [];
 
@@ -154,6 +154,8 @@ const fetchShowtimes = async () => {
                         occupancy: movieOccupancyRate + '%',
                     });
                 }
+
+                allResults += movieResults; // Populate allResults with movieResults
             } catch (error) {
                 console.error(`Error fetching data for movie ${movieName} in city ${cityName}:`, error);
             }
@@ -187,9 +189,9 @@ const fetchShowtimes = async () => {
             <td>${row.occupancy}</td>
         </tr>`;
     });
+
     const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
     const totalSeats = finalSummaryData.reduce((sum, row) => sum + row.totalSeats, 0);
-
 
     finalSummaryTable += `<tr class="total-row">
         <td>All Above</td>
@@ -204,7 +206,7 @@ const fetchShowtimes = async () => {
 
     finalSummaryTable += `</tbody></table>`;
 
-    tableContainer.innerHTML = allResults;
+    tableContainer.innerHTML = allResults; // This now populates the table with movie data
     summaryContainer.innerHTML = finalSummaryTable;
 
     tableContainer.style.display = "block";
