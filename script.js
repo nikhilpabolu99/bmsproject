@@ -352,6 +352,8 @@ filterSelect.addEventListener("change", (e) => {
 // Function to apply the filter to the showtimes
 const applyFilter = () => {
     const filteredResults = allShowtimesData.filter(showtime => filterShowtimes(showtime.showTime));
+    
+    // Update the results table
     const filteredTableRows = filteredResults.map(showtime => `
         <tr>
             <td>${showtime.venue}</td>
@@ -368,6 +370,79 @@ const applyFilter = () => {
     // Update the table with filtered results
     const resultsTable = document.querySelector('.results-table tbody');
     resultsTable.innerHTML = filteredTableRows;
+
+    // Recalculate totals based on filtered results
+    let totalCollection = 0;
+    let totalSeatsAvail = 0;
+    let totalBookedTickets = 0;
+    let totalShows = filteredResults.length;
+
+    filteredResults.forEach(showtime => {
+        totalCollection += showtime.collection;
+        totalSeatsAvail += showtime.seatsAvail;
+        totalBookedTickets += showtime.bookedTickets;
+    });
+
+    const totalOccupancyRate = totalBookedTickets + totalSeatsAvail > 0 
+        ? ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2) 
+        : 0;
+
+    // Update the total summary block
+    const totalSummary = `<div class="total-summary">
+        <h3>Total Summary</h3>
+        <ul>
+            <li><strong>Total Collection:</strong> ₹${totalCollection.toFixed(2)}</li>
+            <li><strong>Total Seats Available:</strong> ${totalSeatsAvail}</li>
+            <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
+            <li><strong>Total Shows:</strong> ${totalShows}</li>
+            <li><strong>Overall Occupancy Rate:</strong> ${totalOccupancyRate}%</li>
+            <li><strong>Total Seats:</strong> ${totalSeatsAvail + totalBookedTickets}</li>
+        </ul>
+    </div>`;
+
+    // Update the final summary table
+    let finalSummaryTable = `<h3>Final Summary of Shows</h3><table class="final-summary-table">
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Movie</th>
+                <th>Total Shows</th>
+                <th>Collection (₹)</th>
+                <th>Seats Available</th>
+                <th>Booked Tickets</th>
+                <th>Total Occupancy</th>
+                <th>Total Seats</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    const uniqueCities = [...new Set(filteredResults.map(showtime => showtime.city))];
+    uniqueCities.forEach(city => {
+        const cityResults = filteredResults.filter(showtime => showtime.city === city);
+        const cityTotalCollection = cityResults.reduce((sum, showtime) => sum + showtime.collection, 0);
+        const cityTotalSeatsAvail = cityResults.reduce((sum, showtime) => sum + showtime.seatsAvail, 0);
+        const cityTotalBookedTickets = cityResults.reduce((sum, showtime) => sum + showtime.bookedTickets, 0);
+        const cityTotalShows = cityResults.length;
+        const cityOccupancyRate = cityTotalBookedTickets + cityTotalSeatsAvail > 0 
+            ? ((cityTotalBookedTickets / (cityTotalSeatsAvail + cityTotalBookedTickets)) * 100).toFixed(2) 
+            : 0;
+
+        finalSummaryTable += `<tr>
+            <td>${city}</td>
+            <td>${cityResults[0].movie}</td>
+            <td>${cityTotalShows}</td>
+            <td>₹${cityTotalCollection.toFixed(2)}</td>
+            <td>${cityTotal SeatsAvail}</td>
+            <td>${cityTotalBookedTickets}</td>
+            <td>${cityOccupancyRate}%</td>
+            <td>${cityTotalSeatsAvail + cityTotalBookedTickets}</td>
+        </tr>`;
+    });
+
+    finalSummaryTable += `</tbody></table>`;
+
+    // Update the summary container with new totals
+    summaryContainer.innerHTML = totalSummary + finalSummaryTable;
 };
 
 // Initialize the dropdowns
