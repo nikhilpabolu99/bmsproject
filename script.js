@@ -194,7 +194,7 @@ const fetchShowtimes = async () => {
                                     <td>${showTime.ShowTime}</td>
                                     <td>${category.PriceDesc}</td>
                                     <td>${maxSeats}</td>
- <td>${seatsAvail}</td>
+                                    <td>${seatsAvail}</td>
                                     <td>${bookedTickets}</td>
                                     <td>₹${currentPrice.toFixed(2)}</td>
                                     <td>₹${collection.toFixed(2)}</td>
@@ -306,7 +306,7 @@ const fetchShowtimes = async () => {
     const totalSeats = totalSeatsAvail + totalBookedTickets;
 
     finalSummaryTable += `<tr class="total-row">
-        <td>All Above </td>
+        <td>All Above</td>
         <td>All Above</td>
         <td>${totalShows}</td>
         <td>₹${totalCollection.toFixed(2)}</td>
@@ -432,7 +432,7 @@ const applyFilter = () => {
             <td>${cityResults[0].movie}</td>
             <td>${cityTotalShows}</td>
             <td>₹${cityTotalCollection.toFixed(2)}</td>
-            <td>${cityTotal SeatsAvail}</td>
+            <td>${cityTotalSeatsAvail}</td>
             <td>${cityTotalBookedTickets}</td>
             <td>${cityOccupancyRate}%</td>
             <td>${cityTotalSeatsAvail + cityTotalBookedTickets}</td>
