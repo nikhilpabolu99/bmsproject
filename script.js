@@ -117,7 +117,7 @@ const fetchShowtimes = async () => {
                 const jsonData = JSON.parse(data);
 
                 jsonData.ShowDetails.forEach((showDetail) => {
-                    showDetail.Venues.forEach((venue) => {
+                    showDetail.Venues.forEach(( venue) => {
                         venue.ShowTimes.forEach((showTime) => {
                             showTime.Categories.forEach((category) => {
                                 const maxSeats = parseInt(category.MaxSeats, 10);
@@ -215,7 +215,7 @@ const fetchShowtimes = async () => {
             <li><strong>Total Booked Tickets:</strong> ${totalBookedTickets}</li>
             <li><strong>Total Shows:</strong> ${totalShows}</li>
             <li><strong>Overall Occupancy Rate:</strong> ${totalOccupancyRate}%</li>
-            <li><strong>Total Seats:</strong> ${totalseats}</li>
+            <li><strong>Total Seats:</strong> ${totalSeatsAvail + totalBookedTickets}</li>
         </ul>
     </div>`;
 
@@ -242,14 +242,12 @@ const fetchShowtimes = async () => {
             <td>₹${row.movieCollection}</td>
             <td>${row.movieSeatsAvail}</td>
             <td>${row.movieBookedTickets}</td>
-            <td>${row.totalOccupancyRate}%</td>
-            <td>${row.totalseats}%</td>
+            <td>${row.occupancy}</td>
+            <td>${row.totalseats}</td>
         </tr>`;
     });
-    
-    //const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
-    const totalSeats = totalSeatsAvail + totalBookedTickets;
 
+    const totalSeats = totalSeatsAvail + totalBookedTickets;
 
     finalSummaryTable += `<tr class="total-row">
         <td>All Above</td>
@@ -259,7 +257,7 @@ const fetchShowtimes = async () => {
         <td>${totalSeatsAvail}</td>
         <td>${totalBookedTickets}</td>
         <td>${totalOccupancyRate}%</td>
-        <td>${totalseats}</td>
+        <td>${totalSeats}</td>
     </tr>`;
 
     finalSummaryTable += `</tbody></table>`;
