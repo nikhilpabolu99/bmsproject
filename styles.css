@@ -18,6 +18,11 @@ select, input[type="date"] {
     background-color: #fff;
 }
 
+/* New styles for the filter dropdown */
+#filterSelect {
+    margin-bottom: 20px; /* Add margin for spacing */
+}
+
 button {
     width: 100%;
     padding: 10px;
@@ -30,6 +35,12 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* Disabled button state */
+button:disabled {
+    background-color: #ccc; /* Grey background for disabled state */
+    cursor: not-allowed; /* Change cursor to indicate it's not clickable */
 }
 
 /* Table styling */
@@ -157,35 +168,4 @@ h2 {
 }
 
 .final-summary-table th {
-    background-color: #f4f4f4; /* Light grey background for headers */
-    font-weight: bold;
-}
-
-.final-summary-table tr:nth-child(even) {
-    background-color: #f9f9f9; /* Alternating row colors */
-}
-
-.final-summary-table tr:hover {
-    background-color: #f1f1f1; /* Highlight row on hover */
-}
-
-/* Add responsive adjustments */
-@media screen and (max-width: 768px) {
-    .results-table th, .results-table td {
-        padding: 8px;
-        font-size: 0.9rem;
-    }
-
-    .movie-summary {
-        padding: 10px;
-    }
-
-    .total-summary {
-        padding: 10px;
-    }
-
-    .final-summary-table th, .final-summary-table td {
-        padding: 6px;
-        font-size: 0.9rem;
-    }
-}
+    background
