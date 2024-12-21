@@ -247,7 +247,7 @@ const fetchShowtimes = async () => {
         </tr>`;
     });
     
-    const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
+    //const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
     const totalSeats = totalSeatsAvail + totalBookedTickets;
 
 
