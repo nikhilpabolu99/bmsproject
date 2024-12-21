@@ -329,6 +329,17 @@ const fetchShowtimes = async () => {
     // Enable the filter button after fetching data
     fetchDataBtn.disabled = false;
 };
+fetchDataBtn.addEventListener("click", fetchShowtimes);
+
+toggleTableBtn.addEventListener("click", () => {
+    if (tableContainer.style.display === "block") {
+        tableContainer.style.display = "none";
+        toggleTableBtn.textContent = "Show Table";
+    } else {
+        tableContainer.style.display = "block";
+        toggleTableBtn.textContent = "Minimize Table";
+    }
+});
 
 // Event listener for filter selection
 filterSelect.addEventListener("change", (e) => {
