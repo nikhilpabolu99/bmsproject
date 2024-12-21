@@ -188,7 +188,8 @@ const fetchShowtimes = async () => {
         </tr>`;
     });
     const totalOccupancyRate = ((totalBookedTickets / (totalSeatsAvail + totalBookedTickets)) * 100).toFixed(2);
-    const totalSeats = summaryData.reduce((sum, row) => sum + row.totalSeats, 0);
+    const totalSeats = finalSummaryData.reduce((sum, row) => sum + row.totalSeats, 0);
+
 
     finalSummaryTable += `<tr class="total-row">
         <td>All Above</td>
