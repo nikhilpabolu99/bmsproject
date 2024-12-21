@@ -91,7 +91,7 @@ const filterShowtimes = (showtime) => {
     if (currentFilter === 'all') return true;
     if (currentFilter === 'ems') return checkShowtimeRange(showtime, '00:00', '07:00');
     if (currentFilter === 'noonshows') return checkShowtimeRange(showtime, '10:30', '11:59');
-    if (currentFilter === 'matinee') return checkShowtimeRange(showtime, '12: 00', '15:30');
+    if (currentFilter === 'matinee') return checkShowtimeRange(showtime, '12:00', '15:30');
     if (currentFilter === 'firstshows') return checkShowtimeRange(showtime, '16:00', '19:59');
     if (currentFilter === 'seconds shows') return checkShowtimeRange(showtime, '20:00', '23:59');
     return false;
@@ -194,7 +194,7 @@ const fetchShowtimes = async () => {
                                     <td>${showTime.ShowTime}</td>
                                     <td>${category.PriceDesc}</td>
                                     <td>${maxSeats}</td>
-                                    <td>${seatsAvail}</td>
+ <td>${seatsAvail}</td>
                                     <td>${bookedTickets}</td>
                                     <td>₹${currentPrice.toFixed(2)}</td>
                                     <td>₹${collection.toFixed(2)}</td>
@@ -204,7 +204,7 @@ const fetchShowtimes = async () => {
                     });
                 });
 
-                const uniqueShows = Object.keys(venueShowtimeMap). length;
+                const uniqueShows = Object.keys(venueShowtimeMap).length;
                 const movieOccupancyRate = ((movieBookedTickets / (movieSeatsAvail + movieBookedTickets)) * 100).toFixed(2);
                 movieTotalShows = uniqueShows;
 
@@ -306,14 +306,14 @@ const fetchShowtimes = async () => {
     const totalSeats = totalSeatsAvail + totalBookedTickets;
 
     finalSummaryTable += `<tr class="total-row">
-        <td>All Above</td>
+        <td>All Above </td>
         <td>All Above</td>
         <td>${totalShows}</td>
         <td>₹${totalCollection.toFixed(2)}</td>
         <td>${totalSeatsAvail}</td>
         <td>${totalBookedTickets}</td>
         <td>${totalOccupancyRate}%</td>
-        <td>${totalSeats }</td>
+        <td>${totalSeats}</td>
     </tr>`;
 
     finalSummaryTable += `</tbody></table>`;
@@ -329,6 +329,7 @@ const fetchShowtimes = async () => {
     // Enable the filter button after fetching data
     fetchDataBtn.disabled = false;
 };
+
 fetchDataBtn.addEventListener("click", fetchShowtimes);
 
 toggleTableBtn.addEventListener("click", () => {
