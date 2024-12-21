@@ -85,7 +85,7 @@ const checkShowtimeRange = (showtime, start, end) => {
 // Function to filter showtimes based on the selected filter
 const filterShowtimes = (showtime) => {
     if (!showtime || typeof showtime !== 'string') {
-        console.warn(`Invalid showtime: ${showtime}`);
+        console.warn(`Invalid showtime: ${ showtime}`);
         return false;
     }
     if (currentFilter === 'all') return true;
@@ -303,7 +303,7 @@ const fetchShowtimes = async () => {
         </tr>`;
     });
 
-    const totalSeats = totalSeatsAvail + totalBookedTickets;
+    const totalSeats = totalSeats Avail + totalBookedTickets;
 
     finalSummaryTable += `<tr class="total-row">
         <td>All Above</td>
